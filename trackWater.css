@@ -1,0 +1,156 @@
+body {
+    background-color: #FFFFFF;
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-image: url('header.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
+}
+
+.theHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.nutriPicture {
+    margin-left: -5px;
+}
+
+.nutriPicture img {
+    max-width: 40px;
+    height: auto;
+}
+
+.theHeader ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
+}
+
+.theHeader ul li {
+    margin-right: 50px;
+}
+
+.theHeader a {
+    text-decoration: none;
+    color: #000;
+}
+
+#logo {
+    color: #91c789;
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+#boxMealCreator {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    min-height: 100vh; 
+}
+
+#boxMealCreator1 {
+    display: flex;
+    margin-top: 4%;
+    margin-left: 8%;
+    margin-right: 8%;
+    margin-bottom: 3%;
+    background-color: white;
+    border-style: solid;
+    border-color: #99D9DE;
+    border-width: 2px;
+    border-radius: 15px;
+    width: 100%;
+    flex-direction: column;
+}
+
+#mealCreatorHeading {
+    font-size: 25px;
+    font-weight: bold;
+    margin-left: 7px;
+    margin-top: 15px;
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#mealCreatorHeader{
+    display: flex;
+    flex-direction: row;
+}
+
+#inputs {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; 
+}
+
+#inputs input[type="text"],
+#inputs input[type="number"],
+#inputs button {
+    margin: 5px; 
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#inputs input[type="text"],
+#inputs input[type="number"] {
+    width: 200px; 
+}
+
+#inputs button {
+    width: auto; 
+    background-color: #91C789;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#liquidList {
+    position: absolute;
+    top: 500px; 
+    left: 50%;
+    transform: translateX(-50%);
+    list-style-type: none;
+    padding: 0;
+    text-align: center; 
+}
+
+#liquidList li {
+    margin-bottom: 5px;
+}
+
+#liquidList li {
+    border-radius: 8px;
+    margin-right: 8px;
+    margin-left: 8px;
+    margin-bottom: 8px;
+    position: relative;
+    background-color: #ffaaa6; 
+    border: 5px solid #ff6961;
+    padding: 8px 45px;
+}
+
+
+
+

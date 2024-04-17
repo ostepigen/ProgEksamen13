@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Every Nutrition</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+    <link rel="stylesheet" href="everynutrition.css">
+</head>
+
+<body>
+    <nav class="theHeader">
+        <div class="logo-container">
+            <span id="logo">NutriTracker</span>
+            <div class="nutriPicture">
+                <img src="apple.jpg" alt="Logo - NutriTracker">
+            </div>
+        </div>
+        <ul>
+            <li><a href="mealcreator.html">Meal Creator</a></li>
+            <li><a href="mealtracker.html">Meal Tracker</a></li>
+            <li><a href="activityTracker.html">Activity Tracker</a></li>
+            <li><a href="dailynutri.html">Daily Nutri</a></li>
+        </ul>
+    </nav>
+
+    <div id="boxMealCreator">
+        <div id="boxMealCreator1">
+            <button id="goBackButton" onclick="goBack()">Gå tilbage</button>
+            <div id="mealCreatorHeading">
+                Information omkring en fødevare samt dets ernæringsindhold
+            </div>
+            <div id="searchDiv">
+                <div id="searchInputWrapper">
+                    <input type="text" id="searchInput" placeholder="Skriv din ønskede fødevare her">
+                    <button id="searchButton" onclick="searchFoodAndDisplayNutrition()">Søg</button>
+                </div>
+                <div id="results"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<script src="everynutrition.js" defer></script>
+
+</html>

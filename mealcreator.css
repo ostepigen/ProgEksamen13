@@ -1,0 +1,191 @@
+body {
+    background-color: #FFFFFF;
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-image: url('header.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
+}
+
+.theHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.nutriPicture {
+    margin-left: -5px;
+}
+
+.nutriPicture img {
+    max-width: 40px;
+    height: auto;
+}
+
+.theHeader ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
+}
+
+.theHeader ul li {
+    margin-right: 50px;
+}
+
+.theHeader a {
+    text-decoration: none;
+    color: #000;
+}
+
+#logo {
+    color: #91c789;
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+#boxMealCreator{
+    display: flex;
+    justify-content:center;
+    align-content:center;
+    height: 100%;
+    box-sizing: border-box;;
+}
+
+#boxMealCreator1 {
+    display: flex;
+    background-color: white;
+    border-style: solid;
+    margin-top: 6%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 3%;
+    border-radius: 25px; 
+    border-color: #99D9DE; 
+    width: 100%;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+#dynamicMealCreator {
+    display:flex;
+    flex-direction:column;
+    margin-bottom: 5px;
+}
+
+#mealCreatorButton {
+    display: flex;
+flex-direction:row;
+justify-content: space-between;
+}
+
+#mealCreatorButtonExtra {
+    display: flex;
+    width: 180px;
+    justify-content: space-between;
+    flex-direction: row;
+    margin-right: 20px;
+    margin-left: 10px; 
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+#mealCreatorHeading {
+    font-size: 27px;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.theMealsName {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+button {
+    margin-top: 12px;
+}
+
+.containerForTheMeals{
+    border: 2px solid #ccc;
+    padding: 25px;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    background-color: #DEF6D8;
+    border-radius: 15px;
+    margin-right: 20px;
+    margin-left: 20px;
+    border-color: #91C789;
+    position: relative;
+}
+
+.deleteButton {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+    background-color: #ff6961; 
+    color: #fff; 
+    border: none;
+    padding: 5px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    background-image: url('trashcan2.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+}
+
+.showNutritionButton {
+    position: absolute;
+    top: 0px; 
+    right: 90px;
+    width: 500; 
+    padding: 5px 16px;
+    height: 35px;
+    border-radius: 20px; 
+}
+
+#plusbutton a {
+    padding: 12px 18px;
+    border-radius: 20px;
+    margin-left: 30px;
+    margin-right: 20px;
+    color: #FFFFFF; 
+    background-color: #91c789; 
+    text-decoration: none;
+    display: inline-block; 
+    margin-top: 20px;
+}
+
+#everynutrition {
+    padding: 12px 18px;
+    border-radius: 20px;
+    background-color: #91c789; 
+    margin-left: auto; 
+    margin-top: 20px;
+    color: black;
+} 
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Tracker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+    <link rel="stylesheet" href="trackWater.css">
+</head>
+
+<body>
+    <nav class="theHeader">
+        <div class="logo-container">
+            <span id="logo">NutriTracker</span>
+            <div class="nutriPicture">
+                <img src="apple.jpg" alt="Logo - NutriTracker">
+            </div>
+        </div>
+        <ul>
+            <li><a href="mealcreator.html">Meal Creator</a></li>
+            <li><a href="mealtracker.html">Meal Tracker</a></li>
+            <li><a href="activityTracker.html">Activity Tracker</a></li>
+            <li><a href="dailynutri.html">Daily Nutri</a></li>
+        </ul>
+    </nav>
+
+    <div id="boxMealCreator">
+        <div id="boxMealCreator1">
+            <div id="mealCreatorHeader">
+                <div id="mealCreatorHeading">
+                    Væskeindtag
+                </div>
+                <button class="goBackButton" onclick="goBack()">Gå tilbage</button>
+                <div id="inputs">
+                    <input type="text" id="liquidName" placeholder="Væskens navn">
+                    <input type="number" id="amount" placeholder="Mængde (ml)">
+                    <button onclick="addLiquid()">Tilføj væsken</button>
+                </div>
+                <ul id="liquidList"></ul>
+            </div>
+        </div>
+    </div>
+    <script src="trackWater.js"></script>
+</body>
+
+</html>

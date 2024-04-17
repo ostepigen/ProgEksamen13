@@ -1,0 +1,211 @@
+body {
+    background-color: #FFFFFF;
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-image: url('header.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
+}
+
+.theHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.nutriPicture {
+    margin-left: -5px;
+}
+
+.nutriPicture img {
+    max-width: 40px;
+    height: auto;
+}
+
+.theHeader ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
+}
+
+.theHeader ul li {
+    margin-right: 50px;
+}
+
+.theHeader a {
+    text-decoration: none;
+    color: #000;
+}
+
+#logo {
+    color: #91c789;
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+#boxMealCreator{
+    display: flex;
+    justify-content:center;
+    align-content:center;
+    height: 100vh;
+}
+
+#boxMealCreator1 {
+    display: flex;
+    margin-top: 4%;
+    margin-left: 8%;
+    margin-right: 8%;
+    margin-bottom: 3%;
+    background-color: white;
+    border-style: solid;
+    border-color: #99D9DE; 
+    border-width: 2px;
+    border-radius: 15px; 
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+}
+
+.goBackButton {
+    position: absolute;
+    top: 220px; 
+    right: 150px;
+    width: 600; 
+    height: 35px;
+    border-radius: 20px; 
+}
+
+#mealCreatorHeading {
+    font-size: 35px;
+    margin: 15px;
+    margin-right: auto;
+}
+
+#inputForMeals {
+    display: flex;
+    flex-direction: column;
+    margin: 30px;
+}
+
+#boxesFlex {
+    display: flex;
+    flex-direction: row;
+}
+
+.input-container {
+    margin-bottom: 15px;
+}
+
+.input-container label {
+    margin-bottom: 5px;
+    display: block;
+}
+
+.input-container input {
+    width: 300px;
+    height: 25px;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+
+#boxesFlex input {
+    width: 300; 
+    height: 25px;
+    padding: 10px;
+    border-radius: 20px; 
+    margin-bottom: 15px; 
+    margin-right: 8px;
+}
+
+#mealName{
+    background-color: #ffaaa6; 
+    border: 2px solid #ff6961;
+}
+
+#ingredient{
+    background-color: #ffaaa6; 
+    border: 2px solid #ff6961;
+}
+
+#quantity {
+    background-color: #ffaaa6; 
+    border: 2px solid #ff6961;
+}
+
+#addIngredientButton {
+    color: black;
+    background-color: #91c789;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 20px;
+    font-size:18px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+#createNewMealButton {
+    color: black;
+    background-color: #91c789;
+    padding: 15px 25px;
+    border-radius: 20px;
+    margin-top: 5px;
+    font-size:25px;
+}
+
+#ingrediensListForMeals {
+    list-style-type: decimal;
+}
+
+#ingrediensListForMeals li {
+    border-radius: 8px;
+    margin-right: 8px;
+    margin-left: 8px;
+    margin-bottom: 8px;
+    position: relative;
+    background-color: #ffaaa6; 
+    border: 5px solid #ff6961;
+    padding: 5px 28px;
+}
+
+
+#mealName::placeholder,
+#ingredient::placeholder,
+#quantity::placeholder {
+    font-family: 'Nunito', sans-serif;
+    font-style: italic; 
+    color: #999; 
+}
+
+#mealName::placeholder,
+#ingredient::placeholder,
+#quantity::placeholder {
+    font-size: 14px; 
+}
+
+
+#mealName::placeholder,
+#ingredient::placeholder,
+#quantity::placeholder {
+    font-weight: bold; 
+}
+
+#mealName,
+#ingredient,
+#quantity {
+    font-size: 16px; 
+}

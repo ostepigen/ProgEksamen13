@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Tracker</title>
+    <link rel="stylesheet" href="mealLogger.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+    <script src="mealLogger.js" defer></script>
+</head>
+
+<body>
+    <nav class="theHeader">
+        <div class="logo-container">
+            <span id="logo">NutriTracker</span>
+            <div class="nutriPicture">
+                <img src="apple.jpg" alt="Logo - NutriTracker">
+            </div>
+        </div>
+        <ul>
+            <li><a href="mealcreator.html">Meal Creator</a></li>
+            <li><a href="mealtracker.html">Meal Tracker</a></li>
+            <li><a href="activityTracker.html">Activity Tracker</a></li>
+            <li><a href="dailynutri.html">Daily Nutri</a></li>
+        </ul>
+    </nav>
+
+    <div id="boxMealLogger">
+        <div id="boxMealLogger1">
+            <div id="mealLoggerHeader">
+                <div id="mealLoggerHeading">
+                    Log Meal
+                </div>
+                <button class="goBackButton" onclick="goBack()">Gå tilbage</button>
+            </div>
+            <div id="input">
+                <label for="mealDropdown" id="selectMeal">Vælg måltid</label>
+                <select id="mealDropdown"></select><br><br>
+
+                <label for="gramsInput">Antal gram</label>
+                <input type="number" id="gramsInput"><br><br>
+
+                <div id="dateInput">
+                    <div class="input-group">
+                        <label for="hourInput">Hour</label>
+                        <input type="number" id="hourInput" min="0" max="23" value="">
+                    </div>
+                    <div class="input-group">
+                        <label for="minuteInput">Minutes</label>
+                        <input type="number" id="minuteInput" min="0" max="59" value="">
+                    </div>
+                    <div class="input-group">
+                        <label for="dayInput">Day</label>
+                        <input type="number" id="dayInput" min="1" max="31" value="">
+                    </div>
+                    <div class="input-group">
+                        <label for="monthInput">Month</label>
+                        <input type="number" id="monthInput" min="1" max="12" value="">
+                    </div>
+                    <div class="input-group">
+                        <label for="yearInput">Year</label>
+                        <input type="number" id="yearInput" value="">
+                    </div>
+                </div>                
+
+                <button id="logButton">Log Meal</button>
+            </div>
+        </div>
+        <div id="boxTrackedMeals">
+
+        </div>
+    </div>
+</body>
+
+</html>
