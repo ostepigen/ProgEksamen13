@@ -60,5 +60,24 @@ body {
     width: 300px;
     border: 3px solid #99D9DE;
     background-color: #91c789;
-    border-radius: 25
+    border-radius: 25px; 
+    margin-top: 50px;
+}
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+    width: 100%; 
+    padding: 10px; 
+    margin-top: 5px; 
+    margin-bottom: 15px; 
+    border-radius: 5px; 
+    border: 1px solid #99D9DE; 
+    box-sizing: border-box;
+}
+
+button{
+    background-color: #99D9DE;
+    border-color: #99D9DE;
+    border-radius: 5px; 
 }
