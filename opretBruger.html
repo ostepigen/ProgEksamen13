@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opret Bruger</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+    <link rel="stylesheet" href="opretBruger.css">
+</head>
+
+<body>
+    <nav class="theHeader">
+        <div class="logo-container">
+            <span id="logo">NutriTracker</span>
+            <div class="nutriPicture">
+                <img src="apple.jpg" alt="Logo - NutriTracker">
+            </div>
+        </div>
+        <ul>
+            <li><a href="mealcreator.html">Meal Creator</a></li>
+            <li><a href="mealtracker.html">Meal Tracker</a></li>
+            <li><a href="dailynutri.html">Daily Nutri</a></li>
+            <li><a href="login.html">Log Ind</a></li>
+        </ul>
+    </nav>
+    <div id="opretForm">
+        <form action="opretBruger.js" method="POST">
+            <label for="brugernavn"><b>Brugernavn</b></label>
+            <input type="text" id="brugernavn" name="brugernavn" placeholder="Indtast brugernavn" required>
+            
+            <label for="kodeord"><b>Kodeord</b></label>
+            <input type="password" id="kodeord" name="kodeord" placeholder="Indtast kodeord" required>
+            
+            <label for="alder"><b>Alder</b></label>
+            <input type="number" id="alder" name="alder" placeholder="Din alder" required>
+            
+            <label for="vægt"><b>Vægt</b></label>
+            <input type="number" id="vægt" name="vægt" placeholder="Din vægt i kg" required>
+            
+            <label for="køn"><b>Køn</b></label>
+            <select id="køn" name="køn" required>
+                <option value="Kvinde">Kvinde</option>
+                <option value="Mand">Mand</option>
+                <option value="Andet">Andet</option>
+            </select>
+            
+            <button type="submit">Opret</button>
+        </form>
+    </div>
+
+    <script src="opretBruger.js"></script>
+</body>
+
+</html>
