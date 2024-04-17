@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
     <link rel="stylesheet" href="login.css">
 </head>
@@ -24,20 +24,25 @@
             <li><a href="dailynutri.html">Daily Nutri</a></li>
         </ul>
     </nav>
+
     <div id="loginPåEksisterende">
-        Login på eksisterende profil
+        Log ind på eksisterende profil
+   <!--spørgsmål: skal der istedet for opretbruger.js stå /login (endpoint)??--> 
+        <form action="login.js" method="POST">
+            <div id="navnOgKode">
+                <label for="brugernavnLogin"><b>Brugernavn</b></label>
+                <input type="text" id="IndtastBrugernavn" name="brugernavn" placeholder="Indtast brugernavn" required>
 
+                <label for="kodeordLogin"><b>Adgangskode</b></label>
+                <input type="password" id="indtastKode" name="adgangskode" placeholder="Indtast adgangskode" required>
 
-        <div id="navnOgKode">
-            <label><b>Brugernavn</b></label>
-            <input type="text" placeholder="Indtast brugernavn">
-            <label><b>Adgangskode</b></label>
-            <input type="text" placeholder="Indtast kodeord">
-        </div>
+            </div>
+            <button type="submit">Log ind</button>
+            </form>
     </div>
 
     <div id="opretNyProfil">
-        Opret profil
+        <a href="opretBruger.html">Opret profil her</a>
     </div>
 
     <script src="login.js"></script>

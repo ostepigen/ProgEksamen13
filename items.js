@@ -6,7 +6,7 @@ import { config } from './config.js';
 const router = express.Router();
 const database = new Database(config);
 
-
+//Post endpoint til at oprette bruger??
 router.post('/opretBruger', async (req, res) => {
     try {
         const result = await database.createUser(req.body);
