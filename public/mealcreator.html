@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>NutriTracker - Meal Creator</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
     <link rel="stylesheet" href="mealcreator.css">
 </head>
-
 <body>
-
     <nav class="theHeader">
         <div class="logo-container">
             <span id="logo">NutriTracker</span>
@@ -25,33 +22,24 @@
         </ul>
     </nav>
 
-
     <div id="boxMealCreator">
         <div id="boxMealCreator1">
-
             <div id="mealCreatorButton">
-                <div id="mealCreatorHeading">
-                    Meal Creator
-                </div>
-
-                <div id="everynutrition">
-                    <a href="everynutrition.html">Informationer om alle fødevare</a>
-                </div>
-
-                <div id="plusbutton">
-                    <a href="createmeal.html">+</a>
-                </div>
+                <div id="mealCreatorHeading">Meal Creator</div>
+                <div id="everynutrition"><a href="everynutrition.html">Information about all foods</a></div>
+                <div id="plusbutton"><a href="createmeal.html">+</a></div>
             </div>
-
-
+            <input type="text" id="mealName" placeholder="Enter meal name">
+            <div id="ingredientEntryContainer">
+                <!-- This container will hold dynamically added ingredient inputs -->
+            </div>
+            <button onclick="addIngredientEntry()">+ Add another ingredient</button>
+            <button onclick="createMeal()">Create Meal</button>
             <div id="dynamicMealCreator">
-
+                <!-- Container where ingredients will be listed -->
             </div>
-
         </div>
     </div>
-
     <script src="mealcreator.js"></script>
 </body>
-
 </html>

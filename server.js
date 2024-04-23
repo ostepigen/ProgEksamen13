@@ -171,7 +171,140 @@ app.get('/get-user-info', async (req, res) => {
     }
 });
 
-
-
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// muliggør det at brugeren laver et måltid ud fra ingredienser i databasen (route)
+
+// Create a new meal
+app.post('/create-meal', async (req, res) => {
+    const { mealName, ingredients } = req.body;
+
+    // Check if the user is logged in
+    if (!req.session || !req.session.user) {
+        return res.status(401).json({ success: false, message: 'No user logged in' });
+    }
+
+    // Validate the meal name and ingredients
+    if (!mealName) {
+        return res.status(400).json({ success: false, message: 'Meal name is required' });
+    }
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+        return res.status(400).json({ success: false, message: 'At least one ingredient is required' });
+    }
+
+    // Start a database transaction
+    let pool = await sql.connect(config);
+    const transaction = new sql.Transaction(pool);
+    try {
+        await transaction.begin();
+
+        // Insert the meal into the Meals table and get the meal ID
+        const mealInsert = await transaction.request()
+            .input('MealName', sql.NVarChar, mealName)
+            .input('Username', sql.VarChar, req.session.user)
+            .query('INSERT INTO Meals (MealName, UserID) OUTPUT INSERTED.MealID VALUES (@MealName, (SELECT UserID FROM Users WHERE Username = @Username))');
+
+        const mealID = mealInsert.recordset[0].MealID;
+
+        // Insert each ingredient into the MealIngredients table
+        for (const ingredient of ingredients) {
+            await transaction.request()
+                .input('MealID', sql.Int, mealID)
+                .input('FoodID', sql.Int, ingredient.foodID)
+                .input('Quantity', sql.Decimal, ingredient.quantity)
+                .query('INSERT INTO MealIngredients (MealID, FoodID, Quantity) VALUES (@MealID, @FoodID, @Quantity)');
+        }
+
+        await transaction.commit();
+        res.json({ success: true, message: 'Meal created successfully' });
+    } catch (err) {
+        // If there's an error, roll back the transaction
+        if (transaction) await transaction.rollback();
+        console.error('Error creating meal:', err);
+        res.status(500).json({ success: false, message: 'Meal creation failed', error: err.message });
+    }
+});
+
+// Fetch Food ID from the Database
+
+app.get('/api/FoodItems/BySearch/:ingredient', async (req, res) => {
+    const { ingredient } = req.params;
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('Ingredient', sql.NVarChar, `%${ingredient}%`)
+            .query('SELECT FoodID, FoodName FROM Food WHERE FoodName LIKE @Ingredient');
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('Ingredient not found');
+        }
+    } catch (err) {
+        console.error('Database query failed:', err);
+        res.status(500).send('Database query error');
+    }
+});
+
+// Fetch Nutritional Values Based on Food ID
+
+app.get('/api/FoodCompSpecs/ByItem/:foodID/BySortKey/:sortKey', async (req, res) => {
+    const { foodID, sortKey } = req.params;
+    try {
+        let pool = await sql.connect(config);
+        const query = 'SELECT NutritionValue FROM NutritionalData WHERE FoodID = @FoodID AND SortKey = @SortKey';
+        const result = await pool.request()
+            .input('FoodID', sql.Int, foodID)
+            .input('SortKey', sql.Int, sortKey)
+            .query(query);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('Nutritional information not found');
+        }
+    } catch (err) {
+        console.error('Database query failed:', err);
+        res.status(500).send('Database query error');
+    }
+});
+
+
+// Get Meals for a specific user
+
+app.post('/create-meal', async (req, res) => {
+    const { mealName, ingredients } = req.body;
+
+    if (!req.session || !req.session.user) {
+        return res.status(401).json({ success: false, message: 'No user logged in' });
+    }
+
+    try {
+        let pool = await sql.connect(config);
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+        
+        const mealInsert = await transaction.request()
+            .input('MealName', sql.NVarChar, mealName)
+            .input('Username', sql.VarChar, req.session.user)
+            .query('INSERT INTO Meals (MealName, UserID) OUTPUT INSERTED.MealID VALUES (@MealName, (SELECT UserID FROM Users WHERE Username = @Username))');
+
+        const mealID = mealInsert.recordset[0].MealID;
+
+        for (const ingredient of ingredients) {
+            await transaction.request()
+                .input('MealID', sql.Int, mealID)
+                .input('FoodID', sql.Int, ingredient.foodID)
+                .input('Quantity', sql.Decimal, ingredient.quantity)
+                .query('INSERT INTO MealIngredients (MealID, FoodID, Quantity) VALUES (@MealID, @FoodID, @Quantity)');
+        }
+
+        await transaction.commit();
+        res.json({ success: true, message: 'Meal created successfully' });
+    } catch (err) {
+        await transaction.rollback();
+        console.error('Error creating meal:', err);
+        res.status(500).json({ success: false, message: 'Meal creation failed', error: err.message });
+    }
+});
