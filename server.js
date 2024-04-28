@@ -372,6 +372,170 @@ app.get('/get-nutrition-data', async (req, res) => {
     }
 });
 
+// ANDERS mealLogger og waterIntake
+// Endpoint to add a water intake record
+app.post('/water-intake', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('Not logged in');
+    }
+
+    const { liquidName, amount } = req.body;
+    try {
+        let pool = await sql.connect(config);
+        await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('LiquidName', sql.NVarChar, liquidName)
+            .input('Amount', sql.Int, amount)
+            .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
+
+        res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
+    }
+});
+
+// Endpoint to get water intake records for the logged in user
+app.get('/water-intake', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('Not logged in');
+    }
+
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('SELECT * FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
+
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to get water intake records');
+    }
+});
+
+// Endpoint to delete a water intake record
+app.delete('/water-intake/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('Not logged in');
+    }
+
+    const { id } = req.params;
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('WaterIntakeId', sql.Int, id)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId AND UserID = @UserID');
+
+        if (result.rowsAffected[0] > 0) {
+            res.status(200).json({ success: true, message: 'Water intake record deleted successfully' });
+        } else {
+            res.status(404).send('Water intake record not found or user mismatch');
+        }
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to delete water intake record');
+    }
+});
+
+// Endpoint to fetch meals for dropdown
+app.get('/api/meals', async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request().query('SELECT MealID, mealName FROM Meals');
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send('Error retrieving meals from database');
+    }
+});
+
+// Endpoint to log a meal
+app.post('/api/log-meal', async (req, res) => {
+    const { mealId, weight } = req.body; // Ensure these match the frontend structure
+    try {
+        const pool = await sql.connect(config);
+
+        // Fetch meal macros from the database
+        const mealMacros = await pool.request()
+            .input('MealID', sql.Int, mealId)
+            .query('SELECT TotalCalories, TotalProtein, TotalFat, TotalFiber FROM Meals WHERE MealID = @MealID');
+
+        if (mealMacros.recordset.length === 0) {
+            return res.status(404).send('Meal not found');
+        }
+
+        const macros = mealMacros.recordset[0];
+        const factor = weight / 100.0; // Assuming the macros are for 100g of the meal
+
+        // Calculate the macros based on the given weight
+        const calories = macros.TotalCalories * factor;
+        const protein = macros.TotalProtein * factor;
+        const fat = macros.TotalFat * factor;
+        const fiber = macros.TotalFiber * factor;
+
+        // Insert the meal intake record into the MealsEated table
+        await pool.request()
+            .input('MealID', sql.Int, mealId)
+            .input('UserID', sql.Int, req.session.user.userId) // Assuming you have the user's session
+            .input('EatenDate', sql.DateTime, new Date()) // Using the current date and time
+            .input('Weight', sql.Int, weight)
+            // Assuming Location is to be set - you'll need to modify this if you're capturing it differently
+            .input('Location', sql.VarChar(255), 'Unknown Location') // Placeholder for actual location
+            // Calculated macros based on weight
+            .input('TotalCalories', sql.Decimal(10, 2), calories)
+            .input('TotalProtein', sql.Decimal(10, 2), protein)
+            .input('TotalFat', sql.Decimal(10, 2), fat)
+            .input('TotalFiber', sql.Decimal(10, 2), fiber)
+            .query(`
+    INSERT INTO MealsEated 
+    (MealId, UserId, EatenDate, Weight, Location, TotalCalories, TotalProtein, TotalFat, TotalFiber) 
+    VALUES (@MealID, @UserID, @EatenDate, @Weight, @Location, @TotalCalories, @TotalProtein, @TotalFat, @TotalFiber)
+`);
+
+
+        res.json({ success: true, message: 'Meal logged successfully' });
+    } catch (err) {
+        console.error('Error logging meal:', err);
+        res.status(500).send('Error logging meal');
+    }
+});
+
+// ... other server.js code ...
+
+app.get('/api/logged-meals', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query(`
+                SELECT M.MealName, E.Weight, E.EatenDate
+                FROM MealsEated E
+                INNER JOIN Meals M ON E.MealId = M.MealId
+                WHERE E.UserId = @UserID
+                ORDER BY E.EatenDate DESC
+            `);
+
+        const meals = result.recordset.map(row => ({
+            mealName: row.MealName,
+            weight: row.Weight,
+            dateTime: row.EatenDate
+        }));
+
+        res.json(meals);
+    } catch (err) {
+        console.error('Error retrieving logged meals:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
 
 
 // Hav den her i bunden 

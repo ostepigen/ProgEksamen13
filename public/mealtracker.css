@@ -1,0 +1,83 @@
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.theHeader {
+    background-color: #a8d5a2; /* Adjust to match the exact color */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-container #logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white; /* Or any other color */
+}
+
+.nutriPicture img {
+    height: 50px; /* Adjust the size as needed */
+}
+
+.theHeader ul {
+    list-style: none;
+    display: flex;
+}
+
+.theHeader ul li {
+    padding: 0 10px;
+}
+
+.theHeader ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+#mealLoggerContainer {
+    background-color: #a8d5a2; /* Adjust to match the exact color */
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%; /* Adjust the width as needed */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#mealLoggerContainer h2 {
+    color: #333;
+}
+
+#mealLoggerContainer select, 
+#mealLoggerContainer input {
+    width: calc(100% - 20px); /* Adjust width to account for padding */
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#mealLoggerContainer button {
+    background-color: #4CAF50; /* Green background */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Add any additional styles as necessary */

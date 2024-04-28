@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Logger</title>
+    <link rel="stylesheet" href="mealLogger.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+</head>
+<body>
+    <nav class="theHeader">
+        <div class="logo-container">
+            <span id="logo">NutriTracker</span>
+        </div>
+        <ul>
+            <li><a href="mealcreator.html">Meal Creator</a></li>
+            <li><a href="mealtracker.html">Meal Tracker</a></li>
+            <li><a href="dailynutri.html">Daily Nutri</a></li>
+            <li><a href="activityTracker.html">Activity Tracker</a></li>
+            <li><a href="login.html">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="mealLoggerContainer">
+        <h2>Log Your Meal</h2>
+        <select id="mealDropdown">
+            <!-- Meal options will be populated here -->
+        </select>
+        <input type="number" id="mealWeight" placeholder="Weight in grams" required>
+        <button onclick="logMeal()">Log Meal</button>
+    </div>
+ 
+<div id="loggedMeals">
+    <h2>Logged Meals</h2>
+    <ul id="loggedMealsList">
+        <!-- Logged meals will be appended here -->
+    </ul>
+</div>
+
+<!-- ... -->
+
+
+    <script src="mealLogger.js" defer></script>
+</body>
+</html>
