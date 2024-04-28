@@ -1,0 +1,114 @@
+body {
+    background-color: #cae9c5;
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-image: url('header.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
+}
+.theHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+.nutriPicture {
+    margin-left: -5px;
+}
+.nutriPicture img {
+    max-width: 40px;
+    height: auto;
+}
+.theHeader ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
+}
+.theHeader ul li {
+    margin-right: 50px;
+}
+.theHeader a {
+    text-decoration: none;
+    color: #000;
+}
+#logo {
+    color: #91c789;
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+#activitiesContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+}
+.activity {
+    background: #cae9c5;
+    border: 2px solid #99D9DE;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;   
+}
+
+#aktivitetstyper {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    gap: 20px; /* Tilføjer plads mellem kolonner */
+}
+
+#almindeligeHverdagsaktiviteterListe,
+#sportssaktiviteterListe,
+#ForskelligeTyperArbejdeListe,
+#dagensAktiviteter {
+    background: #91c789;
+    padding: 10px;
+    border-radius: 8px;
+    min-width: 250px; /* Minimum bredde for at sikre læsbarhed */
+    max-height: 550px; /* Maksimal højde for listen */
+    overflow-y: auto; /* Gør det muligt at scrolle inden i listen, hvis indholdet er for langt */
+}
+
+#dagensAktiviteter{
+    background:  #99D9DE;
+}
+
+ul {
+    list-style: none; 
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px; /* Tilføjer lidt vertikal plads mellem listeelementer */
+    padding: 5px; 
+}
+
+h2 {
+    color: #333;
+    padding: 5px 0;
+}
+
+button {
+    padding: 5px 10px;
+    margin-left: 10px; /* Plads mellem tekst og knap */
+    background-color:  #99D9DE; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; /* Gør musemarkøren til en pointer når den er over knappen */
+}
