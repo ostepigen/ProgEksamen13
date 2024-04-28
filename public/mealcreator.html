@@ -21,41 +21,57 @@
             <li><a href="dailynutri.html">Daily Nutri</a></li>
         </ul>
     </nav>
-
-    <div id="boxMealCreator">
-        <div id="boxMealCreator1">
-            <div id="mealCreatorButton">
-                <div id="mealCreatorHeading">Meal Creator</div>
-                <div id="everynutrition"><a href="everynutrition.html">Information about all foods</a></div>
-                <div id="plusbutton"><a href="createmeal.html">+</a></div>
+    <div class="container">
+        <div class="left-column">
+            <!-- Include a search input and a button for initiating the search -->
+            <div class="input-group">
+                <h3>Search for an ingredient</h3>
+                <input type="text" id="searchTerm" placeholder="Enter ingredient name">
+                <button onclick="searchIngredients()">Search for ingredient</button>
             </div>
-            <input type="text" id="mealName" placeholder="Enter meal name">
-            
-            <div id="ingredientEntryContainer">
-                <!-- This container will hold dynamically added ingredient inputs -->
+            <!-- Ingredient Select and Quantity Input -->
+            <div class="input-group">
+                <select id="searchResults"></select>
+                <h3>Enter amount of grams</h3>
+                <input type="number" id="quantity" placeholder="Enter quantity in grams">
+                <button onclick="submitIngredient()">Add ingredient with given weight</button>
             </div>
-            <button id ="submit" onclick="addIngredientEntry()">+ Add another ingredient</button>
+            <!-- Container to display added ingredients -->
+            <div id="addedIngredients"></div>
+                        <!-- Meal Name Input -->
+                        <div class="input-group">
+                            <h3>Enter a meal name</h3>
+                            <input type="text" id="mealName" placeholder="Enter meal name">
+                        </div>
+            <!-- Button to Create Meal -->
+            <div class="input-group">
             <button onclick="createMeal()">Create Meal</button>
-            <div id="dynamicMealCreator">
-                <!-- Container where ingredients will be listed -->
+        </div>
+            <!-- Display Container for Created Meals -->
+            <div id="mealDisplayContainer"></div>
+        </div>
+        
+        <div class="right-column">
+            <!-- Search Input for Ingredients -->
+            <div class="input-group">
+                <h3>Search for information about any given ingredient</h3>
+                <input type="text" id="infoSearchTerm" placeholder="Enter ingredient name">
+                <button onclick="searchForInformation()">Search for Information</button>
             </div>
-
-            
+            <!-- Dropdown Menu for Search Results -->
+            <div class="input-group">
+                <select id="infoSearchResults"></select>
+            </div>
+            <!-- Button to get information of selected ingredient -->
+            <div class="input-group">
+                <button onclick="getIngredientInformation()">Get Information</button>
+            </div>
+            <!-- Container to Display Ingredient Information -->
+            <div id="ingredientInformation"></div>
         </div>
     </div>
-
-
-
-    <!-- Include a search input and a button for initiating the search -->
-    <input type="text" id="searchTerm" placeholder="Enter ingredient name">
-    <button onclick="searchIngredients()">Search</button>
-    <select id="searchResults" style="width: 300px; max-height: 150px; overflow-y: auto; display: block; margin-top: 10px;"></select>
-    <input type="number" id="quantity" placeholder="Enter quantity in grams" style="margin-top: 10px;">
-    <button onclick="submitIngredient()">Submit</button>
-
-<!-- Container to display search results -->
-<div id="searchResults"></div>
-
+ 
+ 
     <script src="mealcreator.js"></script>
 </body>
 </html>

@@ -4,34 +4,34 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-image: url('header.jpg'); 
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
+    background-image: url('header.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
     font-family: 'Nunito', sans-serif;
 }
-
+ 
 .theHeader {
     display: flex;
     align-items: center;
     padding: 20px;
 }
-
+ 
 .logo-container {
     display: flex;
     align-items: center;
 }
-
+ 
 .nutriPicture {
     margin-left: -5px;
 }
-
+ 
 .nutriPicture img {
     max-width: 40px;
     height: auto;
 }
-
+ 
 .theHeader ul {
     margin: 0;
     padding: 0;
@@ -41,22 +41,22 @@ body {
     align-items: center;
    margin-left: 25px;
 }
-
+ 
 .theHeader ul li {
     margin-right: 50px;
 }
-
+ 
 .theHeader a {
     text-decoration: none;
     color: #000;
 }
-
+ 
 #logo {
     color: #91c789;
     font-size: 35px;
     margin-right: 10px;
 }
-
+ 
 #boxMealCreator{
     display: flex;
     justify-content:center;
@@ -64,7 +64,7 @@ body {
     height: 100%;
     box-sizing: border-box;;
 }
-
+ 
 #boxMealCreator1 {
     display: flex;
     background-color: white;
@@ -73,56 +73,56 @@ body {
     margin-left: 10%;
     margin-right: 10%;
     margin-bottom: 3%;
-    border-radius: 25px; 
-    border-color: #99D9DE; 
+    border-radius: 25px;
+    border-color: #99D9DE;
     width: 100%;
     flex-direction: column;
     box-sizing: border-box;
     height: 100%;
 }
-
+ 
 #dynamicMealCreator {
     display:flex;
     flex-direction:column;
     margin-bottom: 5px;
 }
-
+ 
 #mealCreatorButton {
     display: flex;
 flex-direction:row;
 justify-content: space-between;
 }
-
+ 
 #mealCreatorButtonExtra {
     display: flex;
     width: 180px;
     justify-content: space-between;
     flex-direction: row;
     margin-right: 20px;
-    margin-left: 10px; 
+    margin-left: 10px;
     margin-top: 15px;
     margin-bottom: 10px;
 }
-
+ 
 #mealCreatorHeading {
     font-size: 27px;
     margin-left: 20px;
     margin-top: 20px;
 }
-
+ 
 .theMealsName {
     font-size: 20px;
     margin-bottom: 8px;
 }
-
+ 
 li {
     margin-bottom: 10px;
 }
-
+ 
 button {
     margin-top: 12px;
 }
-
+ 
 .containerForTheMeals{
     border: 2px solid #ccc;
     padding: 25px;
@@ -135,57 +135,111 @@ button {
     border-color: #91C789;
     position: relative;
 }
-
+ 
 .deleteButton {
     position: absolute;
     top: 5px;
     right: 12px;
-    background-color: #ff6961; 
-    color: #fff; 
+    background-color: #ff6961;
+    color: #fff;
     border: none;
     padding: 5px 16px;
     border-radius: 10px;
     cursor: pointer;
     font-size: 16px;
-    background-image: url('trashcan2.jpg'); 
-    background-size: cover; 
-    background-position: center; 
+    background-image: url('trashcan2.jpg');
+    background-size: cover;
+    background-position: center;
 }
-
+ 
 .showNutritionButton {
     position: absolute;
-    top: 0px; 
+    top: 0px;
     right: 90px;
-    width: 500; 
+    width: 500;
     padding: 5px 16px;
     height: 35px;
-    border-radius: 20px; 
+    border-radius: 20px;
 }
-
+ 
 #plusbutton a {
     padding: 12px 18px;
     border-radius: 20px;
     margin-left: 30px;
     margin-right: 20px;
-    color: #FFFFFF; 
-    background-color: #91c789; 
+    color: #FFFFFF;
+    background-color: #91c789;
     text-decoration: none;
-    display: inline-block; 
+    display: inline-block;
     margin-top: 20px;
 }
-
+ 
 #everynutrition {
     padding: 12px 18px;
     border-radius: 20px;
-    background-color: #91c789; 
-    margin-left: auto; 
+    background-color: #91c789;
+    margin-left: auto;
     margin-top: 20px;
     color: black;
-} 
-
+}
+ 
 a {
     text-decoration: none;
     color: black;
 }
-
-
+ 
+ 
+body {
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+ 
+.container {
+    display: flex;
+    max-width: 1200px; /* Adjust as per your design requirement */
+    margin-top: 20px;
+    width: 100%;
+}
+ 
+.left-column, .right-column {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+ 
+.left-column {
+    margin-right: 5px;
+}
+ 
+.right-column {
+    margin-left: 5px;
+}
+ 
+.input-group {
+    margin-bottom: 10px;
+}
+ 
+.input-group input, .input-group button, .input-group select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+ 
+.input-group button {
+    cursor: pointer;
+    background-color: #91c789;
+    color: white;
+    border: none;
+}
+ 
+/* Add more specific styling as needed */
