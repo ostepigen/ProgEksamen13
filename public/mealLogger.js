@@ -12,6 +12,8 @@ function seeLoggedMeals() {
                 <h3>${meal.mealName}</h3>
                 <p>Weight: ${meal.weight} grams</p>
                 <p>Time: ${new Date(meal.dateTime).toLocaleString()}</p>
+                <p>Location: ${meal.location || 'Not available'}</p>
+                <button onclick="deleteMeal(${meal.eatenId})">Delete Meal</button>  <!-- Ensure correct parameter is passed -->
             `;
             mealContainer.appendChild(mealDiv);
         });
@@ -21,51 +23,81 @@ function seeLoggedMeals() {
     });
 }
 
+
+
+
 // This function will fetch meals from the backend and populate the dropdown
 function fetchMeals() {
     fetch('/api/meals')
     .then(response => response.json())
     .then(meals => {
         const dropdown = document.getElementById('mealDropdown');
-        meals.forEach(meal => {
-            const option = document.createElement('option');
-            option.value = meal.MealID;
-            option.textContent = meal.mealName; // Adjust if your property names differ
+        dropdown.innerHTML = ''; // Clear previous entries
+        if (meals.length === 0) {
+            let option = document.createElement('option');
+            option.textContent = "No meals available";
             dropdown.appendChild(option);
-        });
+        } else {
+            meals.forEach(meal => {
+                let option = document.createElement('option');
+                option.value = meal.MealID;
+                option.textContent = meal.MealName; // Ensure correct property name
+                dropdown.appendChild(option);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading meals:', error);
+        alert('Failed to load meals. Please refresh the page.');
     });
 }
 
-// Function to handle logging of the meal
+
+// Function to handle logging of the meal with geolocation
 function logMeal() {
     const mealId = document.getElementById('mealDropdown').value;
     const weight = document.getElementById('mealWeight').value;
-    const mealData = {
-        mealId: mealId,
-        weight: weight,
-        dateTime: new Date().toISOString() // ISO string of the current date and time
-    };
 
-    fetch('/api/log-meal', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(mealData)
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('Network response was not ok.');
-        }
-    })
-    .then(data => {
-        console.log('Meal logged:', data);
-        seeLoggedMeals(); // Refresh the list of logged meals
-    })
-    .catch(error => {
-        console.error('Error logging meal:', error);
+    if (!weight || weight <= 0) {
+        alert('Please enter a valid weight.');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(position => {
+        const { latitude, longitude } = position.coords;
+        const mealData = {
+            mealId: mealId,
+            weight: weight,
+            dateTime: new Date().toISOString(), // ISO string of the current date and time
+            location: `${latitude}, ${longitude}` // Storing location as a string
+        };
+
+        fetch('/api/log-meal', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(mealData)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Network response was not ok.');
+            }
+        })
+        .then(data => {
+            console.log('Meal logged:', data);
+            seeLoggedMeals(); // Refresh the list of logged meals
+        })
+        .catch(error => {
+            console.error('Error logging meal:', error);
+            alert('Failed to log meal. Please try again.');
+        });
+    }, () => {
+        alert('Geolocation is not supported or permission denied.');
     });
 }
+
+
 
 // Attach the logMeal function to the window object so it can be called from HTML
 window.logMeal = logMeal;
@@ -75,3 +107,62 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchMeals();
     seeLoggedMeals();
 });
+
+
+// VISER SPECIFIK ADDRESSE, HVOR MÅLTID ER LAVET I STEDET FOR LAT/LONG KOORDINATER
+
+// // Function to handle logging of the meal with geolocation and reverse geocoding
+// function logMeal() {
+//     const mealId = document.getElementById('mealDropdown').value;
+//     const weight = document.getElementById('mealWeight').value;
+
+//     if (!weight || weight <= 0) {
+//         alert('Please enter a valid weight.');
+//         return;
+//     }
+
+//     navigator.geolocation.getCurrentPosition(position => {
+//         const { latitude, longitude } = position.coords;
+
+//         // Fetch the street address using reverse geocoding
+//         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`, {
+//             headers: {
+//                 'User-Agent': 'NutriTrackerWebApp' // Change this to your application's name and email/contact
+//             }
+//         })
+//         .then(response => response.json())
+//         .then(data => {
+//             const location = data.address.road || `${latitude}, ${longitude}`; // Use road name if available, else use coordinates
+
+//             const mealData = {
+//                 mealId: mealId,
+//                 weight: weight,
+//                 dateTime: new Date().toISOString(),
+//                 location: location
+//             };
+
+//             return fetch('/api/log-meal', {
+//                 method: 'POST',
+//                 headers: {'Content-Type': 'application/json'},
+//                 body: JSON.stringify(mealData)
+//             });
+//         })
+//         .then(response => {
+//             if (response.ok) {
+//                 return response.json();
+//             } else {
+//                 throw new Error('Network response was not ok.');
+//             }
+//         })
+//         .then(data => {
+//             console.log('Meal logged:', data);
+//             seeLoggedMeals(); // Refresh the list of logged meals
+//         })
+//         .catch(error => {
+//             console.error('Error logging meal or fetching location:', error);
+//             alert('Failed to log meal or fetch location. Please try again.');
+//         });
+//     }, () => {
+//         alert('Geolocation is not supported or permission denied.');
+//     });
+// }

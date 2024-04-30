@@ -31,3 +31,4 @@ function fetchLoggedMeals() {
         console.error('Error fetching logged meals:', error);
     });
 }
+

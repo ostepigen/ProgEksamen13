@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Ingredient Tracker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+    <link rel="stylesheet" href="oneIngridentTrack.css">
+</head>
+<body>
+    <nav class="theHeader">
+        <div class="logo-container">
+            <span id="logo">NutriTracker</span>
+            <img src="apple.jpg" alt="Logo - NutriTracker" style="height: 50px;">
+        </div>
+        <ul>
+            <li><a href="mealcreator.html">Meal Creator</a></li>
+            <li><a href="mealtracker.html">Meal Tracker</a></li>
+            <li><a href="dailynutri.html">Daily Nutri</a></li>
+            <li><a href="activityTracker.html">Activity Tracker</a></li>
+            <li><a href="logout.html">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="boxMealCreator">
+        <h1>Track Single Ingredient</h1>
+        <div id="ingredientInput">
+            <label for="ingredient">Ingredient:</label>
+            <input type="text" id="ingredient" name="ingredient" required>
+            <button id="searchButton">Search</button>
+
+            <label for="searchResults">Select Ingredient:</label>
+            <select id="searchResults" disabled></select>
+
+            <label for="quantity">Weight (grams):</label>
+            <input type="number" id="quantity" name="quantity" required>
+
+            <button id="logButton">Log Ingredient</button>
+        </div>
+        
+        <ul id="ingredientsList"></ul>
+    </div>
+    <script src="oneIngridentTrack.js"></script>
+</body>
+</html>

@@ -29,7 +29,15 @@
         <input type="number" id="mealWeight" placeholder="Weight in grams" required>
         <button onclick="logMeal()">Log Meal</button>
     </div>
- 
+
+    <form id="editMealForm" style="display:none;">
+        <input type="hidden" id="mealId" />
+        <input type="text" id="weight" placeholder="Weight in grams" />
+        <input type="text" id="location" placeholder="Location" />
+        <button type="button" onclick="submitMealEdit()">Submit Changes</button>
+    </form>
+    
+
 <div id="loggedMeals">
     <h2>Logged Meals</h2>
     <ul id="loggedMealsList">
@@ -37,7 +45,7 @@
     </ul>
 </div>
 
-<!-- ... -->
+<!--        -->
 
 
     <script src="mealLogger.js" defer></script>

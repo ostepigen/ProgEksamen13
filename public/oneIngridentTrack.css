@@ -1,0 +1,93 @@
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #f4f9f4; /* Light green background for a fresh look */
+    color: #333; /* Dark grey text for good contrast */
+    margin: 0;
+    padding: 0;
+}
+
+.theHeader {
+    background-color: #a8d5a2; /* Soft green header */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-container #logo {
+    font-size: 24px;
+    color: white; /* White color for the logo text */
+    margin-right: 10px; /* Spacing between logo text and image */
+}
+
+.logo-container img {
+    height: 50px; /* Ensure the logo image is not too large */
+}
+
+.theHeader ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    margin: 0;
+}
+
+.theHeader ul li {
+    padding: 0 15px;
+}
+
+.theHeader ul li a {
+    text-decoration: none;
+    color: white; /* White color for nav links */
+    font-weight: bold;
+}
+
+#boxMealCreator {
+    background-color: white;
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+#ingredientInput {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+#ingredientInput label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#ingredientInput input, #ingredientInput button {
+    padding: 8px;
+    margin-bottom: 10px; /* Spacing between form elements */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#ingredientInput button {
+    background-color: #4CAF50; /* Green button to match header */
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+#ingredientsList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#ingredientsList li {
+    background-color: #e3f2fd; /* Very light blue background for list items */
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}

@@ -441,24 +441,42 @@ app.delete('/water-intake/:id', async (req, res) => {
     }
 });
 
-// Endpoint to fetch meals for dropdown
+// Endpoint to fetch meals for dropdown for the logged-in user
 app.get('/api/meals', async (req, res) => {
+    if (!req.session || !req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+
+    const userId = req.session.user.userId;
     try {
         const pool = await sql.connect(config);
-        const result = await pool.request().query('SELECT MealID, mealName FROM Meals');
-        res.json(result.recordset);
+        const result = await pool.request()
+            .input('UserID', sql.Int, userId)
+            .query('SELECT MealID, MealName FROM Meals WHERE UserID = @UserID ORDER BY MealID DESC');
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('No meals found');
+        }
     } catch (err) {
+        console.error('Error retrieving meals from database:', err);
         res.status(500).send('Error retrieving meals from database');
     }
 });
 
+
+
+
+
+///////// MEAL TRACKER //////////
+
 // Endpoint to log a meal
 app.post('/api/log-meal', async (req, res) => {
-    const { mealId, weight } = req.body; // Ensure these match the frontend structure
+    const { mealId, weight, location } = req.body; // Now including location in the data received
+
     try {
         const pool = await sql.connect(config);
-
-        // Fetch meal macros from the database
         const mealMacros = await pool.request()
             .input('MealID', sql.Int, mealId)
             .query('SELECT TotalCalories, TotalProtein, TotalFat, TotalFiber FROM Meals WHERE MealID = @MealID');
@@ -468,33 +486,28 @@ app.post('/api/log-meal', async (req, res) => {
         }
 
         const macros = mealMacros.recordset[0];
-        const factor = weight / 100.0; // Assuming the macros are for 100g of the meal
+        const factor = weight / 100.0;
 
-        // Calculate the macros based on the given weight
         const calories = macros.TotalCalories * factor;
         const protein = macros.TotalProtein * factor;
         const fat = macros.TotalFat * factor;
         const fiber = macros.TotalFiber * factor;
 
-        // Insert the meal intake record into the MealsEated table
         await pool.request()
             .input('MealID', sql.Int, mealId)
-            .input('UserID', sql.Int, req.session.user.userId) // Assuming you have the user's session
-            .input('EatenDate', sql.DateTime, new Date()) // Using the current date and time
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('EatenDate', sql.DateTime, new Date())
             .input('Weight', sql.Int, weight)
-            // Assuming Location is to be set - you'll need to modify this if you're capturing it differently
-            .input('Location', sql.VarChar(255), 'Unknown Location') // Placeholder for actual location
-            // Calculated macros based on weight
+            .input('Location', sql.VarChar(255), location) // Storing location
             .input('TotalCalories', sql.Decimal(10, 2), calories)
             .input('TotalProtein', sql.Decimal(10, 2), protein)
             .input('TotalFat', sql.Decimal(10, 2), fat)
             .input('TotalFiber', sql.Decimal(10, 2), fiber)
             .query(`
-    INSERT INTO MealsEated 
-    (MealId, UserId, EatenDate, Weight, Location, TotalCalories, TotalProtein, TotalFat, TotalFiber) 
-    VALUES (@MealID, @UserID, @EatenDate, @Weight, @Location, @TotalCalories, @TotalProtein, @TotalFat, @TotalFiber)
-`);
-
+                INSERT INTO MealsEaten 
+                (MealId, UserId, EatenDate, Weight, Location, TotalCalories, TotalProtein, TotalFat, TotalFiber) 
+                VALUES (@MealID, @UserID, @EatenDate, @Weight, @Location, @TotalCalories, @TotalProtein, @TotalFat, @TotalFiber)
+            `);
 
         res.json({ success: true, message: 'Meal logged successfully' });
     } catch (err) {
@@ -503,7 +516,6 @@ app.post('/api/log-meal', async (req, res) => {
     }
 });
 
-// ... other server.js code ...
 
 app.get('/api/logged-meals', async (req, res) => {
     if (!req.session.user) {
@@ -515,8 +527,8 @@ app.get('/api/logged-meals', async (req, res) => {
         const result = await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .query(`
-                SELECT M.MealName, E.Weight, E.EatenDate
-                FROM MealsEated E
+                SELECT M.MealName, E.Weight, E.EatenDate, E.Location
+                FROM MealsEaten E
                 INNER JOIN Meals M ON E.MealId = M.MealId
                 WHERE E.UserId = @UserID
                 ORDER BY E.EatenDate DESC
@@ -525,7 +537,8 @@ app.get('/api/logged-meals', async (req, res) => {
         const meals = result.recordset.map(row => ({
             mealName: row.MealName,
             weight: row.Weight,
-            dateTime: row.EatenDate
+            dateTime: row.EatenDate,
+            location: row.Location || 'Unknown Location' // Ensure location is returned, defaulting to 'Unknown Location'
         }));
 
         res.json(meals);
@@ -537,9 +550,50 @@ app.get('/api/logged-meals', async (req, res) => {
 
 
 
+app.post('/api/log-ingredient', async (req, res) => {
+    const { FoodID, quantity } = req.body;
 
+    // Ensure that there is a logged in user by checking the session
+    if (!req.session.user || !req.session.user.userId) {
+        return res.status(401).json({ success: false, message: 'No user logged in' });
+    }
+
+    const UserID = req.session.user.userId; // Retrieve UserID from session
+
+    try {
+        let pool = await sql.connect(config);
+        await pool.request()
+            .input('FoodID', sql.Int, FoodID)
+            .input('Quantity', sql.Int, quantity)
+            .input('UserID', sql.Int, UserID)  // Now using the UserID from session
+            .input('LoggedDate', sql.DateTime, new Date())
+            .query('INSERT INTO IngredientsAmount (FoodID, UserID, Quantity, LoggedDate) VALUES (@FoodID, @UserID, @Quantity, @LoggedDate)');
+        
+        res.json({ success: true, message: 'Ingredient logged successfully' });
+    } catch (err) {
+        console.error('Error logging ingredient:', err);
+        res.status(500).json({ success: false, message: 'Error logging ingredient', error: err.toString() });
+    }
+});
+
+
+app.get('/api/get-logged-ingredients/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('UserID', sql.Int, userId)
+            .query('SELECT * FROM IngredientsAmount WHERE UserID = @UserID ORDER BY LoggedDate DESC');
+        
+        res.json({ success: true, data: result.recordset });
+    } catch (err) {
+        console.error('Error retrieving logged ingredients:', err);
+        res.status(500).send('Error retrieving logged ingredients');
+    }
+});
 
 
 // Hav den her i bunden 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
