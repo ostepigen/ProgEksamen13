@@ -128,3 +128,4 @@ function beregnBasaltStofskifte(weight, age, sex) {
 document.addEventListener('DOMContentLoaded', () => {
     opdaterBasaltStofskifte();
 });
+

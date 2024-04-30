@@ -33,6 +33,49 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
  
+////AKTIVITETS TRACKER stine arbejder på den
+app.get('/activity-types', async (req, res) => {
+    try {
+        // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
+        await sql.connect(config);
+
+        // Udfører en simpel SQL-forespørgsel for at hente alle aktivitetstyper
+        const result = await sql.query('SELECT * FROM ActivityTypesNy');
+
+        console.log(result)
+        // Send resultaterne tilbage til klienten
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('SQL error', err);
+        res.status(500).send('Error on the server.');
+    }
+});
+
+// Stine tester
+// Vigtigt at det her er req.session.user.userID
+app.post('/add-activity', async (req, res) => {
+    if (!req.session || !req.session.user.userId) {
+        return res.status(401).send('Bruger er ikke logget ind');
+    }
+
+    const { name, calories, duration, date } = req.body;
+    try {
+        let pool = await sql.connect(config);
+        await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('ActivityName', sql.NVarChar, name)
+            .input('Duration', sql.Int, duration)
+            .input('CaloriesBurned', sql.Decimal(18, 0), calories)
+            .input('Date', sql.Date, new Date(date))
+            .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
+
+        res.send({ success: true, message: 'Aktivitet gemt' });
+    } catch (err) {
+        console.error('Fejl ved database operation:', err);
+        res.status(500).send('Server fejl');
+    }
+});
+
 app.post('/create-user', async (req, res) => {
     const { username, password } = req.body;
  
@@ -296,49 +339,8 @@ app.get('/get-ingredient-info/:id', async (req, res) => {
 });
  
  
-//
-//AKTIVITETS TRACKER stine arbejder på den
-app.get('/activity-types', async (req, res) => {
-    try {
-        // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
-        await sql.connect(config);
 
-        // Udfører en simpel SQL-forespørgsel for at hente alle aktivitetstyper
-        const result = await sql.query('SELECT * FROM ActivityTypes');
 
-        console.log(result)
-        // Send resultaterne tilbage til klienten
-        res.json(result.recordset);
-    } catch (err) {
-        console.error('SQL error', err);
-        res.status(500).send('Error on the server.');
-    }
-});
-
-// Stine tester
-// Vigtigt at det her er req.session.user.userID
-app.post('/add-activity', async (req, res) => {
-    if (!req.session || !req.session.user.userId) {
-        return res.status(401).send('Bruger er ikke logget ind');
-    }
-
-    const { name, calories, duration, date } = req.body;
-    try {
-        let pool = await sql.connect(config);
-        await pool.request()
-            .input('UserID', sql.Int, req.session.user.userId)
-            .input('ActivityName', sql.NVarChar, name)
-            .input('Duration', sql.Int, duration)
-            .input('CaloriesBurned', sql.Decimal(18, 0), calories)
-            .input('Date', sql.Date, new Date(date))
-            .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
-
-        res.send({ success: true, message: 'Aktivitet gemt' });
-    } catch (err) {
-        console.error('Fejl ved database operation:', err);
-        res.status(500).send('Server fejl');
-    }
-});
 
 
 
