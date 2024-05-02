@@ -81,3 +81,26 @@ body {
 }
 
 /* Add any additional styles as necessary */
+
+/* Additional CSS for the three div boxes */
+.box {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.box button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+}

@@ -1,7 +1,5 @@
-// Base URL for the API endpoints
 const apiUrl = '/water-intake';
 
-// Function to remove a water intake record
 function removeLiquid(item, waterIntakeId) {
     fetch(`${apiUrl}/${waterIntakeId}`, {
         method: 'DELETE'
@@ -16,7 +14,6 @@ function removeLiquid(item, waterIntakeId) {
     .catch(error => console.error('Error:', error));
 }
 
-// Function to add a water intake record
 function addLiquid() {
     const liquidName = document.getElementById('liquidName').value;
     const amount = document.getElementById('amount').value;
@@ -28,50 +25,64 @@ function addLiquid() {
         },
         body: JSON.stringify({ liquidName, amount })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Assuming the server returns the ID and datetime of the new record
-            addToList(data.waterIntakeId, liquidName, amount, data.datetime);
+    .then(response => {
+        if (response.ok) {
+            return response.json();
         } else {
-            console.error('Failed to create the water intake record');
+            throw new Error('Failed to add liquid intake');
         }
     })
-    .catch(error => console.error('Error:', error));
-}
-
-
-// Function to create and append a list item to the DOM
-function addToList(waterIntakeId, name, amount, datetime) {
-    const formattedDatetime = (datetime);
-    const listItem = document.createElement('li');
-    listItem.textContent = `${name} - ${amount} ml ${datetime.slice(0,16) || 'just now'})`;
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Slet';
-    deleteButton.onclick = function() {
-        removeLiquid(listItem, waterIntakeId);
-    };
-
-    listItem.appendChild(deleteButton);
-    document.getElementById('liquidList').appendChild(listItem);
-}
-
-// Function to initialize the list from the server
-function initializeList() {
-    fetch(apiUrl)
-    .then(response => response.json())
     .then(data => {
-        const liquidList = document.getElementById('liquidList');
-        data.forEach(liquid => {
-            addToList(liquid.WaterIntakeId, liquid.LiquidName, liquid.Amount, liquid.IntakeDateTime);
+        appendToLiquidList(data);  // Append only the new liquid to the list
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add liquid intake. Please try again.');
+    });
+}
+
+function appendToLiquidList(water) {
+    const waterContainer = document.getElementById('liquidList');
+    const waterDiv = document.createElement('div');
+    waterDiv.classList.add('loggedWater');
+    waterDiv.innerHTML = `
+        <p>${water.liquidName} - ${water.amount} ml</p>
+        <p>Consumed at: ${new Date(water.intakeDateTime).toLocaleString()}</p>
+        <button onclick="removeLiquid(this.parentNode, ${water.waterIntakeId})">Delete</button>
+    `;
+    waterContainer.appendChild(waterDiv);
+}
+
+
+
+
+function seeLoggedWater() {
+    fetch('/water-intake')
+    .then(response => response.json())
+    .then(waters => {
+        const waterContainer = document.getElementById('liquidList');
+        waterContainer.innerHTML = ''; // Clear previous entries
+        waters.forEach(water => {
+            const waterDiv = document.createElement('div');
+            waterDiv.classList.add('loggedWater');
+            waterDiv.innerHTML = `
+                <p>${water.liquidName} - ${water.amount} ml</p>
+                <p>Consumed at: ${new Date(water.intakeDateTime).toLocaleString()}</p>
+                <button onclick="removeLiquid(this.parentNode, ${water.waterIntakeId})">Delete</button>
+            `;
+            waterContainer.appendChild(waterDiv);
         });
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error fetching logged water intakes:', error);
+    });
 }
 
-// Call the initialization function when the page loads
-document.addEventListener('DOMContentLoaded', initializeList);
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    seeLoggedWater();  // Initialize the water list on page load
+});
 
 // Go back to mealtracker.html
 function goBack() {

@@ -4,16 +4,17 @@ function seeLoggedMeals() {
     .then(response => response.json())
     .then(meals => {
         const mealContainer = document.getElementById('loggedMeals');
-        mealContainer.innerHTML = ''; // Clear previous entries
+        mealContainer.innerHTML = '';
         meals.forEach(meal => {
             const mealDiv = document.createElement('div');
             mealDiv.classList.add('loggedMeal');
             mealDiv.innerHTML = `
                 <h3>${meal.mealName}</h3>
-                <p>Weight: ${meal.weight} grams</p>
+                <p>Original Weight: ${meal.weight} grams</p>
                 <p>Time: ${new Date(meal.dateTime).toLocaleString()}</p>
                 <p>Location: ${meal.location || 'Not available'}</p>
-                <button onclick="deleteMeal(${meal.eatenId})">Delete Meal</button>  <!-- Ensure correct parameter is passed -->
+                <input type="number" id="newWeight${meal.mealEatenId}" placeholder="Enter new weight" />
+                <button onclick="updateMealWeight(${meal.mealEatenId})">Update Weight</button>
             `;
             mealContainer.appendChild(mealDiv);
         });
@@ -22,6 +23,37 @@ function seeLoggedMeals() {
         console.error('Error fetching logged meals:', error);
     });
 }
+
+function updateMealWeight(mealEatenId) {
+    const newWeight = document.getElementById(`newWeight${mealEatenId}`).value;
+    if (!newWeight || newWeight <= 0) {
+        alert('Please enter a valid weight.');
+        return;
+    }
+
+    fetch(`/api/update-meal-eaten/${mealEatenId}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ newWeight: newWeight })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to update meal weight');
+        }
+    })
+    .then(data => {
+        alert('Meal weight updated successfully');
+        seeLoggedMeals(); // Refresh the list to show the updated weight
+    })
+    .catch(error => {
+        console.error('Error updating meal weight:', error);
+        alert('Error updating meal weight. Please try again.');
+    });
+}
+
+
 
 
 
@@ -96,6 +128,29 @@ function logMeal() {
         alert('Geolocation is not supported or permission denied.');
     });
 }
+
+// Function to delete a logged meal
+function deleteMeal(mealEatenId) {
+    fetch(`/api/delete-meal-eaten/${mealEatenId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to delete logged meal');
+        }
+    })
+    .then(data => {
+        alert('Logged meal deleted successfully');
+        seeLoggedMeals(); // Refresh the list of logged meals
+    })
+    .catch(error => {
+        console.error('Error deleting logged meal:', error);
+        alert('Error deleting logged meal. Please try again.');
+    });
+}
+
 
 
 

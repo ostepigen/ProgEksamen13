@@ -339,12 +339,6 @@ app.get('/get-ingredient-info/:id', async (req, res) => {
 });
  
  
-
-
-
-
-
-
 // DAILY NUTRI
 // route til væskeindtag og spiste måltider
 app.get('/get-nutrition-data', async (req, res) => {
@@ -376,6 +370,7 @@ app.get('/get-nutrition-data', async (req, res) => {
 
 // ANDERS mealLogger og waterIntake
 // Endpoint to add a water intake record
+// Endpoint to record a new water intake
 app.post('/water-intake', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).send('Not logged in');
@@ -383,7 +378,7 @@ app.post('/water-intake', async (req, res) => {
 
     const { liquidName, amount } = req.body;
     try {
-        let pool = await sql.connect(config);
+        const pool = await sql.connect(config);
         await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .input('LiquidName', sql.NVarChar, liquidName)
@@ -397,17 +392,19 @@ app.post('/water-intake', async (req, res) => {
     }
 });
 
-// Endpoint to get water intake records for the logged in user
+// Endpoint to retrieve water intake records for the logged in user
+// In your server.js - ensure your query fetches all necessary fields
+// Assuming your database has columns named exactly as LiquidName, Amount, and IntakeDateTime
 app.get('/water-intake', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).send('Not logged in');
     }
 
     try {
-        let pool = await sql.connect(config);
+        const pool = await sql.connect(config);
         const result = await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
-            .query('SELECT * FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
+            .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
 
         res.status(200).json(result.recordset);
     } catch (err) {
@@ -416,30 +413,42 @@ app.get('/water-intake', async (req, res) => {
     }
 });
 
-// Endpoint to delete a water intake record
-app.delete('/water-intake/:id', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Not logged in');
+
+// Endpoint to delete a logged meal
+// Endpoint to delete a logged meal
+app.delete('/api/delete-meal-eaten/:mealEatenId', async (req, res) => {
+    if (!req.session || !req.session.user || !req.session.user.userId) {
+        console.log("Session or user ID not found in session:", req.session);
+        return res.status(401).send('User not logged in');
     }
 
-    const { id } = req.params;
+    const { mealEatenId } = req.params;
+    console.log("Attempting to delete meal with MealEatenId:", mealEatenId, " for user:", req.session.user.userId);
+
     try {
-        let pool = await sql.connect(config);
+        await sql.connect(config);
+        const pool = await sql.connect(config);
         const result = await pool.request()
-            .input('WaterIntakeId', sql.Int, id)
+            .input('MealEatenId', sql.Int, mealEatenId)
             .input('UserID', sql.Int, req.session.user.userId)
-            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId AND UserID = @UserID');
+            .query('DELETE FROM MealsEaten WHERE MealEatenId = @MealEatenId AND UserId = @UserID');
 
         if (result.rowsAffected[0] > 0) {
-            res.status(200).json({ success: true, message: 'Water intake record deleted successfully' });
+            console.log("Meal successfully deleted:", result.rowsAffected);
+            res.status(200).json({ success: true, message: 'Logged meal deleted successfully' });
         } else {
-            res.status(404).send('Water intake record not found or user mismatch');
+            console.log("No rows affected, possible incorrect ID or user mismatch");
+            res.status(404).send('Logged meal not found or user mismatch');
         }
     } catch (err) {
         console.error('Database operation failed:', err);
-        res.status(500).send('Failed to delete water intake record');
+        res.status(500).send('Failed to delete logged meal');
     }
 });
+
+
+
+
 
 // Endpoint to fetch meals for dropdown for the logged-in user
 app.get('/api/meals', async (req, res) => {
@@ -466,6 +475,39 @@ app.get('/api/meals', async (req, res) => {
 });
 
 
+////////// EDIT MEALS /////////
+
+// Endpoint to update the weight of a logged meal
+app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+
+    const { mealEatenId } = req.params;
+    const { newWeight } = req.body; // Ensure that newWeight is passed in the request body
+
+    if (!newWeight || newWeight <= 0) {
+        return res.status(400).send('Invalid weight provided');
+    }
+
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('MealEatenId', sql.Int, mealEatenId)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('NewWeight', sql.Decimal(10, 2), newWeight)
+            .query('UPDATE MealsEaten SET Weight = @NewWeight WHERE MealEatenId = @MealEatenId AND UserId = @UserID');
+
+        if (result.rowsAffected[0] > 0) {
+            res.status(200).json({ success: true, message: 'Meal updated successfully' });
+        } else {
+            res.status(404).send('Meal not found or user mismatch');
+        }
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to update meal');
+    }
+});
 
 
 
@@ -527,7 +569,7 @@ app.get('/api/logged-meals', async (req, res) => {
         const result = await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .query(`
-                SELECT M.MealName, E.Weight, E.EatenDate, E.Location
+                SELECT M.MealName, E.Weight, E.EatenDate, E.Location, E.MealEatenId
                 FROM MealsEaten E
                 INNER JOIN Meals M ON E.MealId = M.MealId
                 WHERE E.UserId = @UserID
@@ -538,7 +580,8 @@ app.get('/api/logged-meals', async (req, res) => {
             mealName: row.MealName,
             weight: row.Weight,
             dateTime: row.EatenDate,
-            location: row.Location || 'Unknown Location' // Ensure location is returned, defaulting to 'Unknown Location'
+            location: row.Location || 'Unknown Location', // Ensure location is returned, defaulting to 'Unknown Location'
+            mealEatenId: row.MealEatenId // make sure this is correctly named as it appears in your database
         }));
 
         res.json(meals);
@@ -547,6 +590,7 @@ app.get('/api/logged-meals', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
 
 
 
@@ -592,6 +636,8 @@ app.get('/api/get-logged-ingredients/:userId', async (req, res) => {
     }
 });
 
+
+////////////// DAILY NUTRI ////////////////
 
 // Hav den her i bunden 
 const PORT = process.env.PORT || 3001;
