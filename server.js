@@ -649,24 +649,29 @@ app.get('/api/get-logged-ingredients/:userId', async (req, res) => {
 
 
 ////////////// DAILY NUTRI ////////////////
-
+// og forbrændre kalorier fra activities 
 // DAILY NUTRI
 app.get('/user/daily-intake', async (req, res) => {
     if (req.session.user && req.session.user.userId) {
         try {
             let pool = await sql.connect(config);
-            const query = `SELECT MealHour, SUM(TotalCalories) AS TotalCalories, SUM(TotalLiquid) AS TotalLiquid
+            const query = `SELECT MealHour, SUM(TotalCalories) AS TotalCalories, SUM(TotalLiquid) AS TotalLiquid, SUM(CaloriesBurned) AS TotalCaloriesBurned
             FROM (
-                SELECT DATEPART(hour, EatenDate) AS MealHour, TotalCalories, 0 AS TotalLiquid
+                SELECT DATEPART(hour, EatenDate) AS MealHour, TotalCalories, 0 AS TotalLiquid, 0 AS CaloriesBurned
                 FROM MealsEaten
                 WHERE UserID = @UserID AND CAST(EatenDate AS date) = CAST(GETDATE() AS date)
                 UNION ALL
-                SELECT DATEPART(hour, IntakeDateTime) AS MealHour, 0 AS TotalCalories, Amount AS TotalLiquid
+                SELECT DATEPART(hour, IntakeDateTime) AS MealHour, 0 AS TotalCalories, Amount AS TotalLiquid, 0 AS CaloriesBurned
                 FROM WaterIntake
                 WHERE UserID = @UserID AND CAST(IntakeDateTime AS date) = CAST(GETDATE() AS date)
+                UNION ALL
+                SELECT DATEPART(hour, Date) AS MealHour, 0 AS TotalCalories, 0 AS TotalLiquid, CaloriesBurned
+                FROM Activities
+                WHERE UserID = @UserID AND CAST(Date AS date) = CAST(GETDATE() AS date)
             ) AS CombinedData
             GROUP BY MealHour
-            ORDER BY MealHour`;
+            ORDER BY MealHour
+            `;
             const result = await pool.request()
                 .input('UserID', sql.Int, req.session.user.userId)
                 .query(query);
@@ -680,6 +685,28 @@ app.get('/user/daily-intake', async (req, res) => {
         res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 });
+
+
+// Get basalstofskifte
+app.get('/user/basalstofskifte', async (req, res) => {
+    if (req.session.user && req.session.user.userId) {
+        try {
+            let pool = await sql.connect(config);
+            const query = `SELECT Basalforbrændning FROM Users WHERE UserID = @UserID`;
+            const result = await pool.request()
+                .input('UserID', sql.Int, req.session.user.userId)
+                .query(query);
+            
+            res.json({ success: true, data: result.recordset });
+        } catch (err) {
+            console.error('Failed to retrieve Basalstofskifte data:', err);
+            res.status(500).json({ success: false, message: 'Failed to retrieve Basalstofskifte data', error: err.message });
+        }
+    } else {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+});
+
 
 // Hav den her i bunden 
 const PORT = process.env.PORT || 3001;
