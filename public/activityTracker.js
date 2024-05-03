@@ -49,8 +49,8 @@ document.addEventListener('DOMContentLoaded', function () {
 function tilføjTilIDag(name, caloriesPerHour, minutes) {
     const dagensListe = document.getElementById('dagensAktiviteter');
     const nyAktivitet = document.createElement('li');
-    const date = new Date().toISOString().substring(0, 10);
-    const calories = (caloriesPerHour / 60) * minutes; // Beregner kalorier baseret på minutter
+    const date = new Date().toISOString(); // Updated to include time
+    const calories = (caloriesPerHour / 60) * minutes; // Calculating calories based on minutes
 
     nyAktivitet.textContent = `${date}: ${name} - ${calories.toFixed(2)} kcal (${minutes} min)`;
 
@@ -68,15 +68,15 @@ function tilføjTilIDag(name, caloriesPerHour, minutes) {
             date
         })
     })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Aktivitet gemt:', data);
-        })
-        .catch((error) => {
-            console.error('Fejl ved at den skal gemme aktivitet:', error);
-        });
-
+    .then(response => response.json())
+    .then(data => {
+        console.log('Activity saved:', data);
+    })
+    .catch((error) => {
+        console.error('Error saving activity:', error);
+    });
 }
+
 
 //EVT. lav SQL DELETE, der giver brugeren mulighed for at slette en gemt aktivitet?? men nej for ikke et krav
 

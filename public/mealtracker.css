@@ -44,54 +44,18 @@ body {
     font-weight: bold;
 }
 
-#mealLoggerContainer {
-    background-color: #a8d5a2; /* Adjust to match the exact color */
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 50%; /* Adjust the width as needed */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
 }
 
-#mealLoggerContainer h2 {
-    color: #333;
-}
-
-#mealLoggerContainer select, 
-#mealLoggerContainer input {
-    width: calc(100% - 20px); /* Adjust width to account for padding */
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-#mealLoggerContainer button {
-    background-color: #4CAF50; /* Green background */
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
+.button-container a {
     text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 5px;
+    margin: 0 10px;
 }
 
-/* Add any additional styles as necessary */
-
-/* Additional CSS for the three div boxes */
-.box {
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 20px auto;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.box button {
+button {
     background-color: #4CAF50;
     border: none;
     color: white;
@@ -103,4 +67,16 @@ body {
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#boxMealCreator {
+    background-color: #fff;
+    margin: 20px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }

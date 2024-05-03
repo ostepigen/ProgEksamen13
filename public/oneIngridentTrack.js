@@ -86,3 +86,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+// Go back to mealtracker.html
+function goBack() {
+    window.location.href = "mealtracker.html";
+}

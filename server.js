@@ -55,7 +55,7 @@ app.get('/activity-types', async (req, res) => {
 // Vigtigt at det her er req.session.user.userID
 app.post('/add-activity', async (req, res) => {
     if (!req.session || !req.session.user.userId) {
-        return res.status(401).send('Bruger er ikke logget ind');
+        return res.status(401).send('User not logged in');
     }
 
     const { name, calories, duration, date } = req.body;
@@ -66,22 +66,17 @@ app.post('/add-activity', async (req, res) => {
             .input('ActivityName', sql.NVarChar, name)
             .input('Duration', sql.Int, duration)
             .input('CaloriesBurned', sql.Decimal(18, 0), calories)
-            .input('Date', sql.Date, new Date(date))
+            .input('Date', sql.DateTime, new Date(date)) // Adjusted to DateTime
             .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
 
-        res.send({ success: true, message: 'Aktivitet gemt' });
+        res.send({ success: true, message: 'Activity saved' });
     } catch (err) {
-        console.error('Fejl ved database operation:', err);
-        res.status(500).send('Server fejl');
+        console.error('Database operation error:', err);
+        res.status(500).send('Server error');
     }
 });
 
-
-
-
-
-
-
+/////// OPDATER BASALT STOFSKIFTE /////////
 
 // User
 app.post('/create-user', async (req, res) => {
@@ -148,28 +143,58 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Ændre lige lidt her så den gemmer basalforbrændning
 app.post('/update-user', async (req, res) => {
     if (!req.session.user.username) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
     }
-
+ 
     const { weight, age, sex } = req.body;
     const username = req.session.user.username;
-
-    try {
-        let pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('Username', sql.VarChar, username)
-            .input('Weight', sql.Decimal, weight)
-            .input('Age', sql.Int, age)
-            .input('Sex', sql.VarChar, sex)
-            .query('UPDATE Users SET Weight = @Weight, Age = @Age, Sex = @Sex WHERE Username = @Username');
-
-        if (result.rowsAffected[0] > 0) {
-            res.json({ success: true, message: 'Profile updated successfully' });
-        } else {
-            res.status(404).json({ success: false, message: 'User not found' });
-        }
+// Funktion til beregning af basalforbrænding indlejret direkte i ruten
+function beregnBasaltStofskifte(weight, age, sex) {
+    console.log(`Vægt: ${weight}, Alder: ${age}, Køn: ${sex}`);
+    let mjBasalstofskifte;
+    if (sex === 'Kvinde') {
+        if (age < 3) mjBasalstofskifte = 0.244 * weight + 0.13;
+        else if (age <= 10) mjBasalstofskifte = 0.085 * weight + 2.03;
+        else if (age <= 18) mjBasalstofskifte = 0.056 * weight + 2.9;
+        else if (age <= 30) mjBasalstofskifte = 0.0615 * weight + 2.08;
+        else if (age <= 60) mjBasalstofskifte = 0.0364 * weight + 3.47;
+        else if (age <= 75) mjBasalstofskifte = 0.0386 * weight + 2.88;
+        else mjBasalstofskifte = 0.0410 * weight + 2.61;
+    } else if (sex === 'Mand') {
+        if (age < 3) mjBasalstofskifte = 0.249 * weight - 0.13;
+        else if (age <= 10) mjBasalstofskifte = 0.095 * weight + 2.11;
+        else if (age <= 18) mjBasalstofskifte = 0.074 * weight + 2.75;
+        else if (age <= 30) mjBasalstofskifte = 0.064 * weight + 2.84;
+        else if (age <= 60) mjBasalstofskifte = 0.0485 * weight + 3.67;
+        else if (age <= 75) mjBasalstofskifte = 0.0499 * weight + 2.93;
+        else mjBasalstofskifte = 0.035 * weight + 3.43;
+    }
+// Konvertering til kalorier
+let kalorier = mjBasalstofskifte * 239;
+return kalorier.toFixed(2); // Returnerer værdien afrundet til to decimaler
+    
+}
+ 
+const basalForbrænding = beregnBasaltStofskifte(weight, age, sex);
+ 
+try {
+    let pool = await sql.connect(config);
+    const result = await pool.request()
+        .input('Username', sql.VarChar, username)
+        .input('Weight', sql.Decimal, weight)
+        .input('Age', sql.Int, age)
+        .input('Sex', sql.VarChar, sex)
+        .input('Basalforbrændning', sql.Decimal, basalForbrænding)
+        .query('UPDATE Users SET Weight = @Weight, Age = @Age, Sex = @Sex, Basalforbrændning = @Basalforbrændning WHERE Username = @Username');
+ 
+    if (result.rowsAffected[0] > 0) {
+        res.json({ success: true, message: 'Profile updated successfully' });
+    } else {
+        res.status(404).json({ success: false, message: 'User not found' });
+    }
     } catch (err) {
         console.error('Update failed:', err);
         res.status(500).json({ success: false, message: 'Update process failed', error: err.message });
@@ -655,7 +680,6 @@ app.get('/user/daily-intake', async (req, res) => {
         res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 });
-
 
 // Hav den her i bunden 
 const PORT = process.env.PORT || 3001;

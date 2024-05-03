@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 Hour: hour,
                 TotalCalories: 0,
                 TotalLiquid: 0,
+                BasalMetabolicRate: 0,
                 ...data.data.find(d => d.MealHour === hour)
             }));
             updateDailyIntakeTable(dataByHour);
@@ -32,6 +33,7 @@ function updateDailyIntakeTable(hoursData) {
            <div class="column-title">TIDSPUNKT</div>
            <div class="column-title">KALORIEINDTAG</div>
            <div class="column-title">VÆSKEINDTAG</div>
+           <div class="column-title">BASALFORBRÆNDNING</div>
        `;
        table.appendChild(header);
    }
@@ -53,9 +55,14 @@ function updateDailyIntakeTable(hoursData) {
         liquidCell.className = 'cell';
         liquidCell.textContent = `${item.TotalLiquid} ml`;
 
+        const combustionCell = document.createElement('div');
+        combustionCell.className = 'cell';
+        combustionCell.textContent = `${item.BasalMetabolicRate} kcal`;
+
         row.appendChild(hourCell);
         row.appendChild(caloriesCell);
         row.appendChild(liquidCell);
+        row.appendChild(combustionCell);
 
         table.appendChild(row);
     });

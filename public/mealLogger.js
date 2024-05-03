@@ -15,6 +15,7 @@ function seeLoggedMeals() {
                 <p>Location: ${meal.location || 'Not available'}</p>
                 <input type="number" id="newWeight${meal.mealEatenId}" placeholder="Enter new weight" />
                 <button onclick="updateMealWeight(${meal.mealEatenId})">Update Weight</button>
+                <button onclick="deleteMeal(${meal.mealEatenId})">Delete</button>
             `;
             mealContainer.appendChild(mealDiv);
         });
@@ -162,6 +163,12 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchMeals();
     seeLoggedMeals();
 });
+
+// Go back to mealtracker.html
+function goBack() {
+    window.location.href = "mealtracker.html";
+}
+
 
 
 // VISER SPECIFIK ADDRESSE, HVOR MÅLTID ER LAVET I STEDET FOR LAT/LONG KOORDINATER
