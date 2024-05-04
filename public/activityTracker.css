@@ -13,13 +13,17 @@ body {
 }
 .theHeader {
     display: flex;
+    background-color: #91c789; 
     align-items: center;
     padding: 20px;
 }
-.logo-container {
+
+
+.logo-container #logo {
     display: flex;
     align-items: center;
 }
+
 .nutriPicture {
     margin-left: -5px;
 }
@@ -41,10 +45,10 @@ body {
 }
 .theHeader a {
     text-decoration: none;
-    color: #000;
+    color: #DFF0D8; 
 }
 #logo {
-    color: #91c789;
+    color: #DFF0D8; 
     font-size: 35px;
     margin-right: 10px;
 }

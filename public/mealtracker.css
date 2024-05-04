@@ -1,17 +1,16 @@
 body {
     font-family: 'Nunito', sans-serif;
-    background-color: #f0f0f0;
+    background-color: #DFF0D8;
     margin: 0;
     padding: 0;
     color: #333;
 }
 
 .theHeader {
-    background-color: #a8d5a2; /* Adjust to match the exact color */
-    padding: 10px 20px;
     display: flex;
-    justify-content: space-between;
+    background-color: #91c789; 
     align-items: center;
+    padding: 20px;
 }
 
 .logo-container {
@@ -22,7 +21,6 @@ body {
 .logo-container #logo {
     font-size: 24px;
     font-weight: bold;
-    color: white; /* Or any other color */
 }
 
 .nutriPicture img {
@@ -30,18 +28,23 @@ body {
 }
 
 .theHeader ul {
+    margin: 0;
+    padding: 0;
     list-style: none;
     display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
 }
 
 .theHeader ul li {
-    padding: 0 10px;
+    margin-right: 50px;
 }
 
 .theHeader ul li a {
     text-decoration: none;
-    color: white;
-    font-weight: bold;
+    color: #000;
+    color: #DFF0D8; 
 }
 
 .button-container {
@@ -79,4 +82,9 @@ button:hover {
     margin: 20px;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+#logo {
+    color: #DFF0D8; 
+    font-size: 35px;
+    margin-right: 10px;
 }

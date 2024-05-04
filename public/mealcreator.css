@@ -1,5 +1,5 @@
 body {
-    background-color: #FFFFFF;
+    background-color: #DFF0D8;
     font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
@@ -14,6 +14,7 @@ body {
  
 .theHeader {
     display: flex;
+    background-color: #91c789; 
     align-items: center;
     padding: 20px;
 }
@@ -48,11 +49,11 @@ body {
  
 .theHeader a {
     text-decoration: none;
-    color: #000;
+    color: #DFF0D8;
 }
  
 #logo {
-    color: #91c789;
+    color: #DFF0D8; 
     font-size: 35px;
     margin-right: 10px;
 }
