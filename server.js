@@ -39,11 +39,10 @@ app.get('/activity-types', async (req, res) => {
         // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
         await sql.connect(config);
 
-        // Udfører en simpel SQL-forespørgsel for at hente alle aktivitetstyper
+        // Henter alle rækker fra tabellen med aktivitetstyper
         const result = await sql.query('SELECT * FROM ActivityTypesNy');
 
-        console.log(result)
-        // Send resultaterne tilbage til klienten
+        // Sender dataene tilbage til klienten som json
         res.json(result.recordset);
     } catch (err) {
         console.error('SQL error', err);
@@ -57,19 +56,23 @@ app.post('/add-activity', async (req, res) => {
     if (!req.session || !req.session.user.userId) {
         return res.status(401).send('User not logged in');
     }
-
+    //Dataen der er sendt fra brugeren gemmes 
     const { name, calories, duration, date } = req.body;
     try {
+        //Der bliver oprettet en forbindelse til databasen
         let pool = await sql.connect(config);
         await pool.request()
+            //Sikrer at dataen er korrekt og beskytter vores SQL (validering)
             .input('UserID', sql.Int, req.session.user.userId)
             .input('ActivityName', sql.NVarChar, name)
             .input('Duration', sql.Int, duration)
             .input('CaloriesBurned', sql.Decimal(18, 0), calories)
-            .input('Date', sql.DateTime, new Date(date)) // Adjusted to DateTime
+            .input('Date', sql.DateTime, new Date(date)) 
+            //Aktiviteterne sættes ind i databasen 
             .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
 
-        res.send({ success: true, message: 'Activity saved' });
+        //Bekræfter at dataen er gemt 
+        res.send({ success: true, message: 'Aktiviteten er gemt' });
     } catch (err) {
         console.error('Database operation error:', err);
         res.status(500).send('Server error');

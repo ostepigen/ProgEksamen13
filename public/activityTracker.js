@@ -1,32 +1,44 @@
-//Krav 1 i opgaven 
+//KRAV 1 I ACTIVITY TRACKER
+
 //Henter aktiviteterne fra databasen, når siden loades 
 document.addEventListener('DOMContentLoaded', function () {
+    ///activity-types sender en GET anmodning til severen
     fetch('/activity-types')
-
+        //Konveterer json
         .then(response => response.json())
+        //Det konveretede objekt bruges til at opdatere brugerens side, så de kan få vist aktivteterne 
         .then(activityTypes => {
+            //Henter de tre lister fra html
             const hverdagsListe = document.getElementById('almindeligeHverdagsaktiviteterListe');
             const sportsListe = document.getElementById('sportssaktiviteterListe');
             const arbejdeListe = document.getElementById('ForskelligeTyperArbejdeListe');
 
-            //Tilføjer aktiviteterne fra databasen til html og knap der kalder på funktionen tilføjTilIDag
+            //Tilføjer allke aktiviteterne fra databasen til html og knap der kalder på funktionen tilføjTilIDag
             activityTypes.forEach(activity => {
                 const listItem = document.createElement('li');
                 const button = document.createElement('button');
                 const minutesInput = document.createElement('input');
 
                 minutesInput.type = 'number';
-                minutesInput.value = 60; // Standard varighed
-                minutesInput.style.width = '50px'; // Styling af inputfeltet
+                //Vi sætter en time som standart varighed
+                minutesInput.value = 60; 
+                //Styling af inputfeltet
+                minutesInput.style.width = '50px';
 
+                //Når brugeren klikker på registrer aktivtet, 
+                //kaldes funktionen med den bestemte aktivtes navn og kalorier fra datasættet,
+                //samt den indtastede værdi i minut inputtet, som parametre. 
                 button.textContent = 'Registrer aktivtet';
-                button.addEventListener('click', () => tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value));
+                button.addEventListener('click', () => 
+                tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value));
 
+                //Tilføjer navn, kaloier pr time, tidsindput og kanp til html
                 listItem.innerHTML = `<li>${activity.ActivityName} 
                 - ${activity.CaloriesPerHour} kcal/t</li>`;
                 listItem.appendChild(minutesInput);
                 listItem.appendChild(button);
 
+                //Tager kategorien som parameter, så de er sotereret rigtigt på sidens lister
                 switch (activity.Category) {
                     case 'Almindelige hverdagsaktiviteter':
                         hverdagsListe.appendChild(listItem);
@@ -40,27 +52,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         })
+        //catch der håndterer fejl i promiset, log fejlen så vi kan se hvad der er galt
         .catch(error => {
             console.error('Fejl ved hentning af aktivitetstyper:', error);
         });
 });
 
-//Funktion der tilføjer dagens aktivitet samt en slet knap
+//Funktion der tilføjer dagens aktivitet til både html og POST 
+//Den her funktion bliver kaldt ovenover når brugeren klikker på knappen
+//Egentlig er det ikke et krav at det vises på siden? skal vi fjerne det??
 function tilføjTilIDag(name, caloriesPerHour, minutes) {
     const dagensListe = document.getElementById('dagensAktiviteter');
     const nyAktivitet = document.createElement('li');
-    const date = new Date().toISOString(); // Updated to include time
-    const calories = (caloriesPerHour / 60) * minutes; // Calculating calories based on minutes
+   
+    //Til at gemme dato og tid
+    const date = new Date().toISOString(); 
+    //Beregner kalorierne fra paramterenes input
+    const calories = (caloriesPerHour / 60) * minutes; 
 
+    //Gøt så brugren kan se den nuye registrerede aktivtet på siden
     nyAktivitet.textContent = `${date}: ${name} - ${calories.toFixed(2)} kcal (${minutes} min)`;
-
     dagensListe.appendChild(nyAktivitet);
 
     fetch('/add-activity', {
         method: 'POST',
         headers: {
+            //Fortæller serveren at dataen sendes i json format
             'Content-Type': 'application/json'
         },
+        //Indeholder brugerens data, der sendes til serveren (konverteret til json-string)
         body: JSON.stringify({
             name,
             calories: calories.toFixed(2),
@@ -70,7 +90,7 @@ function tilføjTilIDag(name, caloriesPerHour, minutes) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Activity saved:', data);
+        console.log('Aktivtet gemt:', data);
     })
     .catch((error) => {
         console.error('Error saving activity:', error);
@@ -78,9 +98,8 @@ function tilføjTilIDag(name, caloriesPerHour, minutes) {
 }
 
 
-//EVT. lav SQL DELETE, der giver brugeren mulighed for at slette en gemt aktivitet?? men nej for ikke et krav
 
-//Krav 2 i opgaven 
+//KRAV 2 I ACTIVITY TRACKER 
 // Henter brugerens info og opdaterer deres basale stofskifte
 function opdaterBasaltStofskifte() {
     fetch('/get-user-info') // get enpoint i server.js
