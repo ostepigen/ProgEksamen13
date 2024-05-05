@@ -33,6 +33,92 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+                             /////////////////// BRUGER STYRING ///////////////////
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+                            /////////////////// MEAL CREATOR ///////////////////
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                                /////////////////// MEAL TRACKER ///////////////////
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                                /////////////////// ACTIVITY TRACKER  ///////////////////
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                                    /////////////////// DAILY NUTRI  ///////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 ////AKTIVITETS TRACKER stine arbejder på den
 app.get('/activity-types', async (req, res) => {
     try {
@@ -634,6 +720,41 @@ app.post('/api/log-ingredient', async (req, res) => {
     }
 });
 
+// Endpoint to retrieve logged ingredients for the logged-in user
+app.get('/api/logged-ingredients', async (req, res) => {
+    if (!req.session.user || !req.session.user.userId) {
+        return res.status(401).send('User not logged in');
+    }
+
+    const userID = req.session.user.userId; // use session user ID for security
+
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('UserID', sql.Int, userID)
+            .query(`
+                SELECT 
+                    IA.IngredientID, 
+                    F.FoodName, 
+                    IA.Quantity, 
+                    IA.LoggedDate
+                FROM IngredientsAmount IA
+                INNER JOIN Food F ON IA.FoodID = F.FoodID
+                WHERE IA.UserID = @UserID
+                ORDER BY IA.LoggedDate DESC
+            `);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('No ingredients found for this user.');
+        }
+    } catch (err) {
+        console.error('Error retrieving logged ingredients:', err);
+        res.status(500).send('Server error retrieving logged ingredients.');
+    }
+});
+
 
 app.get('/api/get-logged-ingredients/:userId', async (req, res) => {
     const { userId } = req.params;
@@ -649,6 +770,30 @@ app.get('/api/get-logged-ingredients/:userId', async (req, res) => {
         res.status(500).send('Error retrieving logged ingredients');
     }
 });
+
+
+app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
+    const { ingredientId } = req.params;
+
+    if (!req.session.user || !req.session.user.userId) {
+        return res.status(401).json({ success: false, message: 'No user logged in' });
+    }
+
+    try {
+        let pool = await sql.connect(config);
+        await pool.request()
+            .input('IngredientID', sql.Int, ingredientId)
+            .query('DELETE FROM IngredientsAmount WHERE IngredientID = @IngredientID');
+
+        res.json({ success: true, message: 'Ingredient deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting ingredient:', err);
+        res.status(500).json({ success: false, message: 'Error deleting ingredient', error: err.toString() });
+    }
+});
+
+
+
 
 
 ////////////// DAILY NUTRI ////////////////
@@ -688,6 +833,89 @@ app.get('/user/daily-intake', async (req, res) => {
         res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 });
+
+/// MONTHLY NUTRI
+app.get('/user/monthly-intake', async (req, res) => {
+    if (req.session.user && req.session.user.userId) {
+        try {
+            let pool = await sql.connect(config);
+            const query = `
+SELECT CAST(EatenDate AS date) AS MealDay, 
+       SUM(TotalCalories) AS TotalCalories, 
+       SUM(TotalLiquid) AS TotalLiquid, 
+       SUM(CaloriesBurned) AS TotalCaloriesBurned
+FROM (
+    SELECT CAST(EatenDate AS date) AS EatenDate, TotalCalories, 0 AS TotalLiquid, 0 AS CaloriesBurned
+    FROM MealsEaten
+    WHERE UserID = @UserID AND EatenDate >= DATEADD(day, -30, GETDATE())
+    UNION ALL
+    SELECT CAST(IntakeDateTime AS date) AS EatenDate, 0 AS TotalCalories, Amount AS TotalLiquid, 0 AS CaloriesBurned
+    FROM WaterIntake
+    WHERE UserID = @UserID AND IntakeDateTime >= DATEADD(day, -30, GETDATE())
+    UNION ALL
+    SELECT CAST(Date AS date) AS EatenDate, 0 AS TotalCalories, 0 AS TotalLiquid, CaloriesBurned
+    FROM Activities
+    WHERE UserID = @UserID AND Date >= DATEADD(day, -30, GETDATE())
+) AS CombinedData
+GROUP BY CAST(EatenDate AS date)
+ORDER BY CAST(EatenDate AS date)
+            `;
+            const result = await pool.request()
+                .input('UserID', sql.Int, req.session.user.userId)
+                .query(query);
+            
+            res.json({ success: true, data: result.recordset });
+        } catch (err) {
+            console.error('Error retrieving monthly intake data:', err);
+            res.status(500).json({ success: false, message: 'Error retrieving monthly intake data', error: err.message });
+        }
+    } else {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+});
+
+/// SELECT 30 DAYS OR 24 HOURS
+
+app.get('/user/intake-data', async (req, res) => {
+    const { timeframe } = req.query;
+    let query = '';
+    if (timeframe === '24hours') {
+        query = `SELECT DATEPART(hour, EatenDate) AS MealHour, 
+                 SUM(TotalCalories) AS TotalCalories, 
+                 SUM(TotalLiquid) AS TotalLiquid, 
+                 SUM(CaloriesBurned) AS TotalCaloriesBurned
+                 FROM CombinedData
+                 WHERE UserID = @UserID AND EatenDate >= DATEADD(hour, -24, GETDATE())
+                 GROUP BY DATEPART(hour, EatenDate)
+                 ORDER BY MealHour`;
+    } else if (timeframe === '30days') {
+        query = `SELECT CAST(EatenDate AS date) AS MealDay, 
+                 SUM(TotalCalories) AS TotalCalories, 
+                 SUM(TotalLiquid) AS TotalLiquid, 
+                 SUM(CaloriesBurned) AS TotalCaloriesBurned
+                 FROM CombinedData
+                 WHERE UserID = @UserID AND EatenDate >= DATEADD(day, -30, GETDATE())
+                 GROUP BY CAST(EatenDate AS date)
+                 ORDER BY MealDay`;
+    }
+
+    if (req.session.user && req.session.user.userId) {
+        try {
+            let pool = await sql.connect(config);
+            const result = await pool.request()
+                .input('UserID', sql.Int, req.session.user.userId)
+                .query(query);
+            
+            res.json({ success: true, data: result.recordset });
+        } catch (err) {
+            console.error('Error retrieving intake data:', err);
+            res.status(500).json({ success: false, message: 'Error retrieving intake data', error: err.message });
+        }
+    } else {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+});
+
 
 
 // Get basalstofskifte

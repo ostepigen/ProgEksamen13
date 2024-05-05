@@ -24,6 +24,7 @@ function appendToLiquidList(water) {
     const waterContainer = document.getElementById('liquidList');
     const waterDiv = document.createElement('div');
     waterDiv.classList.add('loggedWater');
+    // Check if water.waterIntakeId is defined
     waterDiv.innerHTML = `
         <p>${water.liquidName} - ${water.amount} ml</p>
         <p>Consumed at: ${new Date(water.intakeDateTime).toLocaleString()}</p>
@@ -31,6 +32,7 @@ function appendToLiquidList(water) {
     `;
     waterContainer.appendChild(waterDiv);
 }
+
 
 // Existing functions (addLiquid, removeLiquid, etc.) are unchanged
 
