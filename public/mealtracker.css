@@ -1,9 +1,15 @@
 body {
-    font-family: 'Nunito', sans-serif;
     background-color: #DFF0D8;
+    font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
-    color: #333;
+    box-sizing: border-box;
+    background-image: url('header.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
 }
 
 .theHeader {
@@ -11,22 +17,24 @@ body {
     background-color: #91c789; 
     align-items: center;
     padding: 20px;
+    width: 100%;
 }
-
+ 
 .logo-container {
     display: flex;
     align-items: center;
 }
 
-.logo-container #logo {
-    font-size: 24px;
-    font-weight: bold;
+.nutriPicture {
+    margin-left: -5px;
 }
-
+ 
 .nutriPicture img {
-    height: 50px; /* Adjust the size as needed */
+    max-width: 40px;
+    height: auto;
 }
 
+ 
 .theHeader ul {
     margin: 0;
     padding: 0;
@@ -36,21 +44,29 @@ body {
     align-items: center;
    margin-left: 25px;
 }
-
+ 
 .theHeader ul li {
     margin-right: 50px;
 }
-
-.theHeader ul li a {
+ 
+.theHeader a {
     text-decoration: none;
-    color: #000;
-    color: #DFF0D8; 
+    color: #DFF0D8;
 }
+
+#logo {
+    color: #DFF0D8; 
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+
 
 .button-container {
     display: flex;
     justify-content: center;
     margin-top: 20px;
+       border-radius: 10px;
 }
 
 .button-container a {
@@ -59,18 +75,14 @@ body {
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #91c789;
     border: none;
+    border-radius: 15px;
     color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
     cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    font-size: 16px;
+    padding: 15px;
+    width: 100%;
 }
 
 button:hover {
@@ -79,9 +91,10 @@ button:hover {
 
 #boxMealCreator {
     background-color: #fff;
-    margin: 20px;
+    margin: 60px;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 10px;
 }
 #logo {
     color: #DFF0D8; 

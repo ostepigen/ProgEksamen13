@@ -11,19 +11,20 @@ body {
     background-attachment: fixed;
     font-family: 'Nunito', sans-serif;
 }
- 
+
 .theHeader {
     display: flex;
     background-color: #91c789; 
     align-items: center;
     padding: 20px;
+    width: 100%;
 }
  
 .logo-container {
     display: flex;
     align-items: center;
 }
- 
+
 .nutriPicture {
     margin-left: -5px;
 }
@@ -32,6 +33,7 @@ body {
     max-width: 40px;
     height: auto;
 }
+
  
 .theHeader ul {
     margin: 0;
@@ -51,13 +53,14 @@ body {
     text-decoration: none;
     color: #DFF0D8;
 }
- 
+
 #logo {
     color: #DFF0D8; 
     font-size: 35px;
     margin-right: 10px;
 }
- 
+
+
 #boxMealCreator{
     display: flex;
     justify-content:center;
@@ -115,10 +118,7 @@ justify-content: space-between;
     font-size: 20px;
     margin-bottom: 8px;
 }
- 
-li {
-    margin-bottom: 10px;
-}
+
  
 button {
     margin-top: 12px;
@@ -189,20 +189,11 @@ a {
     color: black;
 }
  
- 
-body {
-    font-family: 'Nunito', sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+
  
 .container {
     display: flex;
-    max-width: 1200px; /* Adjust as per your design requirement */
+    max-width: 1200px; 
     margin-top: 20px;
     width: 100%;
 }
@@ -243,4 +234,3 @@ body {
     border: none;
 }
  
-/* Add more specific styling as needed */

@@ -1,44 +1,65 @@
 body {
-    background-color: #DFF0D8; /* Changed to the lighter green background */
+    background-color: #DFF0D8;
     font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-image: url('header.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
 }
 
 .theHeader {
-    background-color: #91c789; /* Darker green for the header */
-    padding: 20px;
-    text-align: center;
-}
-
-.logo-container #logo {
-    color: #fff; /* White color for contrast */
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.theHeader ul {
-    list-style: none;
-    padding-left: 0;
     display: flex;
-    justify-content: center;
+    background-color: #91c789; 
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+ 
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.nutriPicture {
+    margin-left: -5px;
+}
+ 
+.nutriPicture img {
+    max-width: 40px;
+    height: auto;
+}
+
+ 
+.theHeader ul {
     margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
 }
-
+ 
 .theHeader ul li {
-    padding: 0 10px;
+    margin-right: 50px;
 }
-
+ 
 .theHeader a {
     text-decoration: none;
-    color: #fff; /* White color for contrast */
-    transition: color 0.3s ease;
+    color: #DFF0D8;
 }
 
-.theHeader a:hover {
-    color: #cae9c5; /* Light green for hover */
+#logo {
+    color: #DFF0D8; 
+    font-size: 35px;
+    margin-right: 10px;
 }
+
 
 main {
     display: flex;
@@ -49,24 +70,24 @@ main {
 }
 
 .profile-section {
-    background-color: #AED9A0; /* Light green for the form backgrounds */
-    border: 1px solid #91c789; /* Border color to match the header */
+    background-color: #AED9A0; 
+    border: 1px solid #91c789; 
     border-radius: 15px;
     margin-bottom: 20px;
     padding: 20px;
-    width: 60%; /* Adjusted for a moderate width */
-    box-shadow: 0 8px 16px 0 rgba(145,201,137,0.2); /* subtle shadow for depth */
+    width: 60%; 
+    box-shadow: 0 8px 16px 0 rgba(145,201,137,0.2);
 }
 
 h3 {
-    color: #fff; /* White color for contrast */
+    color: #fff; 
     margin-bottom: 20px;
     text-align: center;
 }
 
 .inputGroup {
     margin-bottom: 10px;
-    background-color: #DFF0D8; /* Lighter green background for input groups */
+    background-color: #DFF0D8; 
     border-radius: 10px;
     padding: 5px;
 }
@@ -79,16 +100,16 @@ h3 {
 
 .inputGroup input,
 .inputGroup select {
-    width: calc(100% - 20px); /* Adjust width to account for padding */
+    width: calc(100% - 20px); 
     padding: 10px;
     margin: 5px;
-    border: 1px solid #91c789; /* Border color to match the header */
+    border: 1px solid #91c789; 
     border-radius: 5px;
-    box-sizing: border-box; /* Makes sure the padding doesn't affect the width */
+    box-sizing: border-box; 
 }
 
 .submitButton {
-    background-color: #91c789; /* Darker green for buttons */
+    background-color: #91c789;
     border: none;
     border-radius: 15px;
     color: white;
@@ -96,11 +117,10 @@ h3 {
     font-size: 16px;
     padding: 15px;
     width: 100%;
-    transition: background-color 0.3s ease;
 }
 
 .submitButton:hover {
-    background-color: #cae9c5; /* Light green for hover */
+    background-color: #cae9c5; 
 }
 
 #currentProfileDetails {
@@ -108,13 +128,10 @@ h3 {
     background-color: #f7f7f7;
     border-radius: 10px;
     padding: 20px;
-    width: 80%;
+    width: 60%;
 }
 
 #currentProfileDetails h3 {
     color: #333;
 }
 
-#currentProfileDetails p {
-    line-height: 1.6;
-}

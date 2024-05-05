@@ -1,51 +1,66 @@
 body {
-    background-color: #DFF0D8; /* Light green background */
+    background-color: #DFF0D8;
     font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-image: url('header.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
 }
 
 .theHeader {
-    background-color: #91c789; /* Green header */
     display: flex;
+    background-color: #91c789; 
     align-items: center;
     padding: 20px;
-    justify-content: space-between;
+    width: 100%;
 }
-
+ 
 .logo-container {
     display: flex;
     align-items: center;
 }
 
-.logo-container #logo {
-    color: white;
-    font-size: 2em; /* Increased logo size */
-    margin-right: 15px;
+.nutriPicture {
+    margin-left: -5px;
 }
-
+ 
 .nutriPicture img {
-    width: 50px; /* Adjust the size of the logo image */
+    max-width: 40px;
     height: auto;
 }
 
+ 
 .theHeader ul {
-    list-style: none;
-    display: flex;
     margin: 0;
     padding: 0;
+    list-style: none;
+    display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
 }
-
+ 
 .theHeader ul li {
-    padding: 0 15px;
+    margin-right: 50px;
 }
-
+ 
 .theHeader a {
     text-decoration: none;
-    color: white;
-    font-size: 1em;
+    color: #DFF0D8;
 }
+
+#logo {
+    color: #DFF0D8; 
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+
 
 .main-container {
     display: flex;
@@ -56,17 +71,17 @@ body {
 }
 
 .form-section {
-    background-color: #AED9A0; /* Light green background for forms */
+    background-color: #AED9A0; 
     border-radius: 15px;
     padding: 30px;
     margin: 20px 0;
-    width: 90%; /* Full width on smaller screens, adjust as necessary */
-    max-width: 400px; /* Maximum width of forms */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 90%; 
+    max-width: 400px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
 
 h3 {
-    color: #333; /* Dark color for the titles */
+    color: #333; 
     margin-bottom: 20px;
     text-align: center;
 }
@@ -83,7 +98,7 @@ h3 {
 .inputGroup input {
     width: 100%;
     padding: 10px;
-    border: 2px solid #91c789; /* Green border to match header */
+    border: 2px solid #91c789; 
     border-radius: 10px;
     font-size: 1em;
 }
@@ -91,7 +106,7 @@ h3 {
 .submitButton {
     width: 100%;
     padding: 10px;
-    background-color: #91c789; /* Green background for buttons */
+    background-color: #91c789; 
     color: white;
     border: none;
     border-radius: 10px;
@@ -102,5 +117,5 @@ h3 {
 }
 
 .submitButton:hover {
-    background-color: #cae9c5; /* Lighter green on hover */
+    background-color: #cae9c5; 
 }

@@ -4,22 +4,23 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-image: url('header.jpg'); 
-    background-size: auto 100%;
-    background-position: center 10%; 
-    background-repeat: no-repeat; 
+    background-image: url('header.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
 }
-
 
 .theHeader {
     display: flex;
     background-color: #91c789; 
     align-items: center;
     padding: 20px;
+    width: 100%;
 }
-
-.logo-container #logo {
+ 
+.logo-container {
     display: flex;
     align-items: center;
 }
@@ -27,12 +28,13 @@ body {
 .nutriPicture {
     margin-left: -5px;
 }
-
+ 
 .nutriPicture img {
     max-width: 40px;
     height: auto;
 }
 
+ 
 .theHeader ul {
     margin: 0;
     padding: 0;
@@ -42,14 +44,14 @@ body {
     align-items: center;
    margin-left: 25px;
 }
-
+ 
 .theHeader ul li {
     margin-right: 50px;
 }
-
+ 
 .theHeader a {
     text-decoration: none;
-    color: #DFF0D8; 
+    color: #DFF0D8;
 }
 
 #logo {
@@ -97,6 +99,7 @@ body {
     margin-right: 70%;
     flex-direction: row;
     margin-top: 2%;
+    flex-wrap: wrap;
 }
 
   
@@ -143,6 +146,20 @@ body {
 .data-row div {
     margin:  0 30px; 
 }
+
+#viewSelector{
+    background-color: #91c789;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 15px;
+    margin-left: 7px;
+    margin-top: 15px;
+}
+
+
 
 
 
