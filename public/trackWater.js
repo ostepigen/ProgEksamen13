@@ -37,19 +37,26 @@ function appendToLiquidList(water) {
 // Existing functions (addLiquid, removeLiquid, etc.) are unchanged
 
 
-function removeLiquid(item, waterIntakeId) {
-    fetch(`${apiUrl}/${waterIntakeId}`, {
+function removeLiquid(element, waterIntakeId) {
+    console.log("Attempting to delete WaterIntakeId:", waterIntakeId); // Check what's being sent
+    fetch(`/water-intake/${waterIntakeId}`, {
         method: 'DELETE'
     })
-    .then(response => {
-        if (response.ok) {
-            item.parentNode.removeChild(item);
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Water intake deleted successfully');
+            element.remove();  // Remove the water intake entry from the DOM
         } else {
-            console.error('Failed to delete the water intake record');
+            throw new Error(result.message);
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error deleting water intake:', error);
+        alert('Failed to delete water intake. Please try again.');
+    });
 }
+
 
 function addLiquid() {
     const liquidName = document.getElementById('liquidName').value;

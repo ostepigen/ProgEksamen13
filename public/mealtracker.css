@@ -101,3 +101,17 @@ button:hover {
     font-size: 35px;
     margin-right: 10px;
 }
+
+#boxTrackedMeals {
+    background-color: #91c789;
+    margin: 60px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 10px;
+
+}
+
+#mealCreatorHeading {
+    margin-bottom: 20px;
+    text-align: center;
+}

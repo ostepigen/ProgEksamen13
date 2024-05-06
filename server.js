@@ -513,6 +513,36 @@ app.get('/water-intake', async (req, res) => {
     }
 });
 
+// Endpoint to delete a water intake record
+app.delete('/water-intake/:waterIntakeId', async (req, res) => {
+    if (!req.session || !req.session.user || !req.session.user.userId) {
+        return res.status(401).send('User not logged in');
+    }
+
+    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
+    if (isNaN(waterIntakeId)) {
+        return res.status(400).send('Invalid Water Intake ID');
+    }
+
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('WaterIntakeId', sql.Int, waterIntakeId)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId AND UserID = @UserID');
+
+        if (result.rowsAffected[0] > 0) {
+            res.json({ success: true, message: 'Water intake deleted successfully' });
+        } else {
+            res.status(404).send('Water intake record not found or user mismatch');
+        }
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to delete water intake');
+    }
+});
+
+
 
 // Endpoint to delete a logged meal
 // Endpoint to delete a logged meal
@@ -669,7 +699,8 @@ app.get('/api/logged-meals', async (req, res) => {
         const result = await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .query(`
-                SELECT M.MealName, E.Weight, E.EatenDate, E.Location, E.MealEatenId
+                SELECT M.MealName, E.Weight, E.EatenDate, E.Location, E.MealEatenId, 
+                       M.TotalCalories, M.TotalProtein, M.TotalFat, M.TotalFiber
                 FROM MealsEaten E
                 INNER JOIN Meals M ON E.MealId = M.MealId
                 WHERE E.UserId = @UserID
@@ -680,8 +711,12 @@ app.get('/api/logged-meals', async (req, res) => {
             mealName: row.MealName,
             weight: row.Weight,
             dateTime: row.EatenDate,
-            location: row.Location || 'Unknown Location', // Ensure location is returned, defaulting to 'Unknown Location'
-            mealEatenId: row.MealEatenId // make sure this is correctly named as it appears in your database
+            location: row.Location || 'Unknown Location',
+            mealEatenId: row.MealEatenId,
+            totalCalories: row.TotalCalories,
+            totalProtein: row.TotalProtein,
+            totalFat: row.TotalFat,
+            totalFiber: row.TotalFiber
         }));
 
         res.json(meals);
@@ -694,31 +729,39 @@ app.get('/api/logged-meals', async (req, res) => {
 
 
 
-app.post('/api/log-ingredient', async (req, res) => {
-    const { FoodID, quantity } = req.body;
 
-    // Ensure that there is a logged in user by checking the session
+app.post('/api/log-ingredient', async (req, res) => {
+    const { FoodID, quantity, nameOfIngredient } = req.body;
+
     if (!req.session.user || !req.session.user.userId) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
     }
 
-    const UserID = req.session.user.userId; // Retrieve UserID from session
+    const UserID = req.session.user.userId;
 
     try {
         let pool = await sql.connect(config);
-        await pool.request()
+        const result = await pool.request()
             .input('FoodID', sql.Int, FoodID)
             .input('Quantity', sql.Int, quantity)
-            .input('UserID', sql.Int, UserID)  // Now using the UserID from session
+            .input('UserID', sql.Int, UserID)
+            .input('NameOfIngredient', sql.NVarChar, nameOfIngredient)
             .input('LoggedDate', sql.DateTime, new Date())
-            .query('INSERT INTO IngredientsAmount (FoodID, UserID, Quantity, LoggedDate) VALUES (@FoodID, @UserID, @Quantity, @LoggedDate)');
+            .query('INSERT INTO IngredientsAmount (FoodID, UserID, Quantity, NameOfIngredient, LoggedDate) OUTPUT INSERTED.IngredientID VALUES (@FoodID, @UserID, @Quantity, @NameOfIngredient, @LoggedDate)');
 
-        res.json({ success: true, message: 'Ingredient logged successfully' });
+        if (result.recordset.length > 0) {
+            const ingredientId = result.recordset[0].IngredientID;
+            res.json({ success: true, message: 'Ingredient logged successfully', ingredientId: ingredientId });
+        } else {
+            throw new Error('Failed to retrieve the ingredient ID');
+        }
     } catch (err) {
         console.error('Error logging ingredient:', err);
         res.status(500).json({ success: false, message: 'Error logging ingredient', error: err.toString() });
     }
 });
+
+
 
 // Endpoint to retrieve logged ingredients for the logged-in user
 app.get('/api/logged-ingredients', async (req, res) => {
@@ -726,71 +769,57 @@ app.get('/api/logged-ingredients', async (req, res) => {
         return res.status(401).send('User not logged in');
     }
 
-    const userID = req.session.user.userId; // use session user ID for security
+    const UserID = req.session.user.userId;
 
-    try {
-        const pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('UserID', sql.Int, userID)
-            .query(`
-                SELECT 
-                    IA.IngredientID, 
-                    F.FoodName, 
-                    IA.Quantity, 
-                    IA.LoggedDate
-                FROM IngredientsAmount IA
-                INNER JOIN Food F ON IA.FoodID = F.FoodID
-                WHERE IA.UserID = @UserID
-                ORDER BY IA.LoggedDate DESC
-            `);
-
-        if (result.recordset.length > 0) {
-            res.json(result.recordset);
-        } else {
-            res.status(404).send('No ingredients found for this user.');
-        }
-    } catch (err) {
-        console.error('Error retrieving logged ingredients:', err);
-        res.status(500).send('Server error retrieving logged ingredients.');
-    }
-});
-
-
-app.get('/api/get-logged-ingredients/:userId', async (req, res) => {
-    const { userId } = req.params;
     try {
         let pool = await sql.connect(config);
         const result = await pool.request()
-            .input('UserID', sql.Int, userId)
-            .query('SELECT * FROM IngredientsAmount WHERE UserID = @UserID ORDER BY LoggedDate DESC');
+            .input('UserID', sql.Int, UserID)
+            .query('SELECT IngredientID, NameOfIngredient, Quantity, LoggedDate FROM IngredientsAmount WHERE UserID = @UserID ORDER BY LoggedDate DESC');
 
-        res.json({ success: true, data: result.recordset });
+        if (result.recordset.length > 0) {
+            res.json({ success: true, ingredients: result.recordset });
+        } else {
+            res.status(404).send('No ingredients found for the user');
+        }
     } catch (err) {
-        console.error('Error retrieving logged ingredients:', err);
-        res.status(500).send('Error retrieving logged ingredients');
+        console.error('Database operation failed:', err);
+        res.status(500).send('Server error');
     }
 });
-
 
 app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
     const { ingredientId } = req.params;
 
     if (!req.session.user || !req.session.user.userId) {
-        return res.status(401).json({ success: false, message: 'No user logged in' });
+        return res.status(401).send('User not logged in');
+    }
+
+    const ingredientIdInt = parseInt(ingredientId, 10);
+    if (isNaN(ingredientIdInt)) {
+        return res.status(400).send('Invalid Ingredient ID provided');
     }
 
     try {
-        let pool = await sql.connect(config);
-        await pool.request()
-            .input('IngredientID', sql.Int, ingredientId)
-            .query('DELETE FROM IngredientsAmount WHERE IngredientID = @IngredientID');
+        await sql.connect(config);
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('IngredientID', sql.Int, ingredientIdInt)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('DELETE FROM IngredientsAmount WHERE IngredientID = @IngredientID AND UserID = @UserID');
 
-        res.json({ success: true, message: 'Ingredient deleted successfully' });
+        if (result.rowsAffected[0] > 0) {
+            res.status(200).json({ success: true, message: 'Ingredient deleted successfully' });
+        } else {
+            res.status(404).send('Ingredient not found or user mismatch');
+        }
     } catch (err) {
-        console.error('Error deleting ingredient:', err);
-        res.status(500).json({ success: false, message: 'Error deleting ingredient', error: err.toString() });
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to delete ingredient');
     }
 });
+
+
 
 
 

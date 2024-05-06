@@ -91,3 +91,25 @@ body {
     margin-bottom: 5px;
     border-radius: 5px;
 }
+
+#ingredientsListAlreadyAdded {
+    list-style-type: none;
+    padding: 0;
+}
+
+#ingredientsListAlreadyAdded li {
+    background-color: #4CAF50; /* Very light blue background for list items */
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.delete-button {
+    margin-left: 10px;
+    color: black;
+    background-color: #f4f9f4;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}

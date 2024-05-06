@@ -55,7 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const postData = {
             FoodID: parseInt(foodID, 10),
-            quantity: parseInt(weight, 10)
+            quantity: parseInt(weight, 10),
+            nameOfIngredient: ingredientName
         };
 
         fetch('/api/log-ingredient', {
@@ -65,96 +66,105 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(postData)
         })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Ingredient logged successfully.');
+                addIngredientToList(result.ingredientId, ingredientName, weight);  // Ensure 'result.ingredientId' is correct
+            } else {
+                throw new Error(result.message);
+            }
+        });
+    }
+
+    function addIngredientToList(ingredientId, ingredientName, weight) {
+        const ingredientsList = document.getElementById('ingredientsList');
+        const newIngredient = document.createElement('li');
+        newIngredient.textContent = `${ingredientName} - ${weight} grams `;
+        newIngredient.dataset.ingredientId = ingredientId;  // Ensure this attribute is correctly set
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function() { deleteIngredient(ingredientId); };
+
+        newIngredient.appendChild(deleteButton);
+        ingredientsList.appendChild(newIngredient);
+    }
+
+    function deleteIngredient(ingredientId) {
+        console.log("Deleting Ingredient with ID:", ingredientId);  // Log to ensure the ID is correct
+        fetch(`/api/delete-ingredient/${ingredientId}`, { method: 'DELETE' })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert('Ingredient logged successfully.');
-                    const ingredientsList = document.getElementById('ingredientsList');
-                    const newIngredient = document.createElement('li');
-                    newIngredient.textContent = `${ingredientName} - ${weight} grams`;
-                    newIngredient.dataset.ingredientId = result.ingredientId; // Assuming the server returns the ID of the newly inserted ingredient
-            
-                    // Create the delete button
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.onclick = function() {
-                        const ingredientId = newIngredient.dataset.ingredientId;
-                        fetch(`/api/delete-ingredient/${ingredientId}`, { method: 'DELETE' })
-                        .then(response => response.json())
-                        .then(delResult => {
-                            if (delResult.success) {
-                                // Remove the list item from the DOM
-                                ingredientsList.removeChild(newIngredient);
-                                alert('Ingredient deleted successfully.');
-                            } else {
-                                throw new Error(delResult.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error deleting ingredient:', error);
-                            alert('Failed to delete ingredient. Please try again.');
-                        });
-                    };
-                    
-                         // Append the button to the new ingredient element
-                    newIngredient.appendChild(deleteBtn);
-                    ingredientsList.appendChild(newIngredient);
+                    alert('Ingredient deleted successfully');
+                    document.querySelector(`[data-ingredient-id="${ingredientId}"]`).remove();
                 } else {
                     throw new Error(result.message);
                 }
+            })
+            .catch(error => {
+                console.error('Error deleting ingredient:', error);
+                alert('Failed to delete ingredient. Please try again.');
             });
     }
-
-    // Additional functions unchanged, include them as they are
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const ingredientsListAlreadyAdded = document.getElementById('ingredientsListAlreadyAdded');
 
+    function fetchAndDisplayIngredients() {
+        fetch('/api/logged-ingredients')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayIngredients(data.ingredients);
+                } else {
+                    console.error('No ingredients found or failed to fetch ingredients');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching logged ingredients:', error);
+            });
+    }
 
-
-function seeLoggedIngredients() {
-    fetch('/api/logged-ingredients')
-    .then(response => response.json())
-    .then(ingredients => {
-        const ingredientsList = document.getElementById('ingredientsList');
-        ingredientsList.innerHTML = ''; // Clear existing entries
+    function displayIngredients(ingredients) {
+        ingredientsListAlreadyAdded.innerHTML = ''; // Clear the list first
         ingredients.forEach(ingredient => {
             const ingredientItem = document.createElement('li');
-            ingredientItem.textContent = `${ingredient.FoodName || 'Unknown ingredient'} - ${ingredient.Quantity} grams logged on ${new Date(ingredient.LoggedDate).toLocaleString()}`;
+            ingredientItem.textContent = `${ingredient.NameOfIngredient} - ${ingredient.Quantity} grams logged on ${new Date(ingredient.LoggedDate).toLocaleString()}`;
 
-            // Add delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'Delete';
-            deleteBtn.onclick = function() {
-                fetch(`/api/delete-ingredient/${ingredient.IngredientID}`, { method: 'DELETE' })
-                .then(response => response.json())
-                .then(delResult => {
-                    if (delResult.success) {
-                        ingredientsList.removeChild(ingredientItem);
-                        alert('Ingredient deleted successfully.');
-                    } else {
-                        throw new Error(delResult.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting ingredient:', error);
-                    alert('Failed to delete ingredient. Please try again.');
-                });
-            };
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = function() { deleteIngredient(ingredient.IngredientID); };
+            deleteButton.classList.add('delete-button'); // Add class for optional styling
 
-            // Append the delete button to the list item
-            ingredientItem.appendChild(deleteBtn);
-            ingredientsList.appendChild(ingredientItem);
+            ingredientItem.appendChild(deleteButton);
+            ingredientsListAlreadyAdded.appendChild(ingredientItem);
         });
-    })
-    .catch(error => {
-        console.error('Error fetching logged ingredients:', error);
-        alert('Error fetching logged ingredients. Please try again.');
-    });
-}
+    }
 
+    function deleteIngredient(ingredientId) {
+        fetch(`/api/delete-ingredient/${ingredientId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Ingredient deleted successfully');
+                    fetchAndDisplayIngredients(); // Refresh the list after deleting
+                } else {
+                    throw new Error(result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting ingredient:', error);
+                alert('Failed to delete ingredient. Please try again.');
+            });
+    }
 
-
+    // Fetch and display ingredients when page loads
+    fetchAndDisplayIngredients();
+});
 
 
 
