@@ -376,7 +376,7 @@ app.get('/search-ingredient-info/:name', async (req, res) => {
         let pool = await sql.connect(config);
         const results = await pool.request()
             .input('FoodName', sql.NVarChar, `%${name}%`)
-            .query('SELECT FoodName, FoodID FROM DataFood WHERE FoodName LIKE @FoodName');
+            .query('SELECT FoodName, FoodID, Kcal FROM DataFood WHERE FoodName LIKE @FoodName');
         res.json(results.recordset);
     } catch (err) {
         console.error('Database query failed:', err);
@@ -620,7 +620,7 @@ app.get('/api/logged-meals', async (req, res) => {
 
 
 app.post('/api/log-ingredient', async (req, res) => {
-    const { FoodID, quantity, nameOfIngredient } = req.body;
+    const { FoodID, quantity, nameOfIngredient, kalorierGem} = req.body;
 
     if (!req.session.user || !req.session.user.userId) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -636,7 +636,8 @@ app.post('/api/log-ingredient', async (req, res) => {
             .input('UserID', sql.Int, UserID)
             .input('NameOfIngredient', sql.NVarChar, nameOfIngredient)
             .input('LoggedDate', sql.DateTime, new Date())
-            .query('INSERT INTO IngredientsAmount (FoodID, UserID, Quantity, NameOfIngredient, LoggedDate) OUTPUT INSERTED.IngredientID VALUES (@FoodID, @UserID, @Quantity, @NameOfIngredient, @LoggedDate)');
+            .input('TotalCalories', sql.Int, kalorierGem)
+            .query('INSERT INTO IngredientsAmount (FoodID, UserID, Quantity, NameOfIngredient, LoggedDate, TotalCalories) OUTPUT INSERTED.IngredientID VALUES (@FoodID, @UserID, @Quantity, @NameOfIngredient, @LoggedDate, @TotalCalories)');
 
         if (result.recordset.length > 0) {
             const ingredientId = result.recordset[0].IngredientID;
@@ -664,7 +665,7 @@ app.get('/api/logged-ingredients', async (req, res) => {
         let pool = await sql.connect(config);
         const result = await pool.request()
             .input('UserID', sql.Int, UserID)
-            .query('SELECT IngredientID, NameOfIngredient, Quantity, LoggedDate FROM IngredientsAmount WHERE UserID = @UserID ORDER BY LoggedDate DESC');
+            .query('SELECT IngredientID, NameOfIngredient, Quantity, LoggedDate, TotalCalories FROM IngredientsAmount WHERE UserID = @UserID ORDER BY LoggedDate DESC');
 
         if (result.recordset.length > 0) {
             res.json({ success: true, ingredients: result.recordset });
@@ -750,6 +751,10 @@ app.get('/user/daily-intake', async (req, res) => {
                 SELECT DATEPART(hour, Date) AS MealHour, 0 AS TotalCalories, 0 AS TotalLiquid, CaloriesBurned
                 FROM Activities
                 WHERE UserID = @UserID AND CAST(Date AS date) = CAST(GETDATE() AS date)
+                UNION ALL
+                SELECT DATEPART(hour, LoggedDate) AS MealHour, TotalCalories AS TotalCalories, 0 AS TotalLiquid, 0 AS CaloriesBurned
+                FROM IngredientsAmount
+                WHERE UserID = @UserID AND CAST(LoggedDate AS date) = CAST(GETDATE() AS date)
             ) AS CombinedData
             GROUP BY MealHour
             ORDER BY MealHour
@@ -767,6 +772,7 @@ app.get('/user/daily-intake', async (req, res) => {
         res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 });
+
 
 /// MONTHLY NUTRI
 app.get('/user/monthly-intake', async (req, res) => {
@@ -790,6 +796,10 @@ FROM (
     SELECT CAST(Date AS date) AS EatenDate, 0 AS TotalCalories, 0 AS TotalLiquid, CaloriesBurned
     FROM Activities
     WHERE UserID = @UserID AND Date >= DATEADD(day, -30, GETDATE())
+    UNION ALL 
+    SELECT CAST(LoggedDate AS date) AS EatenDate, TotalCalories AS TotalCalories, 0 AS TotalLiquid, 0 AS CaloriesBurned
+    FROM IngredientsAmount
+    WHERE UserID = @UserID AND LoggedDate >= DATEADD(day, -30, GETDATE())
 ) AS CombinedData
 GROUP BY CAST(EatenDate AS date)
 ORDER BY CAST(EatenDate AS date)

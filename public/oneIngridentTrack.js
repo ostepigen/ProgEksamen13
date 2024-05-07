@@ -29,7 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         let option = document.createElement('option');
                         option.value = item.FoodID;
                         option.textContent = item.FoodName;
+                        kalorierData = item.Kcal;
                         searchResults.appendChild(option);
+                    
                     });
                     searchResults.disabled = false;
                 } else {
@@ -47,6 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const foodID = searchResults.value;
         const weight = quantityInput.value;
         const ingredientName = searchResults.options[searchResults.selectedIndex].text;
+        //Stine har ændret
+        const kalorier = kalorierData
+
 
         if (!foodID || weight <= 0) {
             alert('Please select an ingredient and enter a valid weight.');
@@ -56,9 +61,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const postData = {
             FoodID: parseInt(foodID, 10),
             quantity: parseInt(weight, 10),
-            nameOfIngredient: ingredientName
+            nameOfIngredient: ingredientName,
+            //Ændrer her
+            kalorierGem: (kalorier * weight) / 100
         };
-
+console.log(postData)
         fetch('/api/log-ingredient', {
             method: 'POST',
             headers: {
@@ -70,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(result => {
             if (result.success) {
                 alert('Ingredient logged successfully.');
-                addIngredientToList(result.ingredientId, ingredientName, weight);  // Ensure 'result.ingredientId' is correct
+                addIngredientToList(result.ingredientId, ingredientName, weight, kalorier);  // Ensure 'result.ingredientId' is correct
             } else {
                 throw new Error(result.message);
             }
