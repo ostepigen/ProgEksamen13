@@ -34,6 +34,57 @@ app.get('/', (req, res) => {
 });
 
 
+
+                                /////////////////// ACTIVITY TRACKER  ///////////////////
+
+
+
+////AKTIVITETS TRACKER
+app.get('/activity-types', async (req, res) => {
+    try {
+        // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
+        await sql.connect(config);
+
+        // Henter alle rækker fra tabellen med aktivitetstyper
+        const result = await sql.query('SELECT * FROM ActivityTypesNy');
+
+        // Sender dataene tilbage til klienten som json
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('SQL error', err);
+        res.status(500).send('Error on the server.');
+    }
+});
+
+// Vigtigt at det her er req.session.user.userID
+app.post('/add-activity', async (req, res) => {
+    if (!req.session || !req.session.user.userId) {
+        return res.status(401).send('User not logged in');
+    }
+    //Dataen der er sendt fra brugeren gemmes 
+    const { name, calories, duration, date, activityTypeID } = req.body;
+    try {
+        //Der bliver oprettet en forbindelse til databasen
+        let pool = await sql.connect(config);
+        await pool.request()
+            //Sikrer at dataen er korrekt og beskytter vores SQL (validering)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('ActivityName', sql.NVarChar, name)
+            .input('Duration', sql.Int, duration)
+            .input('CaloriesBurned', sql.Decimal(18, 0), calories)
+            .input('Date', sql.DateTime, new Date(date)) 
+            .input('ActivityTypeID', sql.Int, activityTypeID)
+            //Aktiviteterne sættes ind i databasen 
+            .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date, ActivityTypeID) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date, @ActivityTypeID)');
+
+        //Bekræfter at dataen er gemt 
+        res.send({ success: true, message: 'Aktiviteten er gemt' });
+    } catch (err) {
+        console.error('Database operation error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -425,14 +476,13 @@ app.get('/api/meals', async (req, res) => {
 
 ////////// EDIT MEALS /////////
 
-// Endpoint to update the weight of a logged meal
 app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).send('User not logged in');
     }
 
     const { mealEatenId } = req.params;
-    const { newWeight } = req.body; // Ensure that newWeight is passed in the request body
+    const { newWeight } = req.body;
 
     if (!newWeight || newWeight <= 0) {
         return res.status(400).send('Invalid weight provided');
@@ -440,22 +490,41 @@ app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
 
     try {
         const pool = await sql.connect(config);
-        const result = await pool.request()
+        // Retrieve the current meal details
+        const mealDetails = await pool.request()
             .input('MealEatenId', sql.Int, mealEatenId)
-            .input('UserID', sql.Int, req.session.user.userId)
-            .input('NewWeight', sql.Decimal(10, 2), newWeight)
-            .query('UPDATE MealsEaten SET Weight = @NewWeight WHERE MealEatenId = @MealEatenId AND UserId = @UserID');
+            .query('SELECT TotalCalories, TotalProtein, TotalFat, TotalFiber, Weight FROM MealsEaten WHERE MealEatenId = @MealEatenId');
 
-        if (result.rowsAffected[0] > 0) {
-            res.status(200).json({ success: true, message: 'Meal updated successfully' });
-        } else {
-            res.status(404).send('Meal not found or user mismatch');
+        if (mealDetails.recordset.length === 0) {
+            return res.status(404).send('Meal not found');
         }
+
+        const meal = mealDetails.recordset[0];
+        const factor = newWeight / meal.Weight;
+
+        // Recalculate macros based on the new weight
+        const newCalories = meal.TotalCalories * factor;
+        const newProtein = meal.TotalProtein * factor;
+        const newFat = meal.TotalFat * factor;
+        const newFiber = meal.TotalFiber * factor;
+
+        // Update meal with new weight and new macros
+        await pool.request()
+            .input('MealEatenId', sql.Int, mealEatenId)
+            .input('NewWeight', sql.Decimal(10, 2), newWeight)
+            .input('NewCalories', sql.Decimal(10, 2), newCalories)
+            .input('NewProtein', sql.Decimal(10, 2), newProtein)
+            .input('NewFat', sql.Decimal(10, 2), newFat)
+            .input('NewFiber', sql.Decimal(10, 2), newFiber)
+            .query('UPDATE MealsEaten SET Weight = @NewWeight, TotalCalories = @NewCalories, TotalProtein = @NewProtein, TotalFat = @NewFat, TotalFiber = @NewFiber WHERE MealEatenId = @MealEatenId');
+
+        res.status(200).json({ success: true, message: 'Meal updated successfully' });
     } catch (err) {
         console.error('Database operation failed:', err);
         res.status(500).send('Failed to update meal');
     }
 });
+
 
 
 
@@ -517,10 +586,10 @@ app.get('/api/logged-meals', async (req, res) => {
         const result = await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .query(`
-                SELECT M.MealName, E.Weight, E.EatenDate, E.Location, E.MealEatenId, 
-                       M.TotalCalories, M.TotalProtein, M.TotalFat, M.TotalFiber
+                SELECT M.MealName, E.Weight, E.EatenDate, E.Location, E.MealEatenId,
+                       E.TotalCalories, E.TotalProtein, E.TotalFat, E.TotalFiber
                 FROM MealsEaten E
-                INNER JOIN Meals M ON E.MealId = M.MealId
+                JOIN Meals M ON E.MealId = M.MealId
                 WHERE E.UserId = @UserID
                 ORDER BY E.EatenDate DESC
             `);
@@ -543,6 +612,8 @@ app.get('/api/logged-meals', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+
 
 
 
@@ -645,54 +716,6 @@ app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
 
 
 
-                                /////////////////// ACTIVITY TRACKER  ///////////////////
-
-
-
-////AKTIVITETS TRACKER
-app.get('/activity-types', async (req, res) => {
-    try {
-        // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
-        await sql.connect(config);
-
-        // Henter alle rækker fra tabellen med aktivitetstyper
-        const result = await sql.query('SELECT * FROM ActivityTypesNy');
-
-        // Sender dataene tilbage til klienten som json
-        res.json(result.recordset);
-    } catch (err) {
-        console.error('SQL error', err);
-        res.status(500).send('Error on the server.');
-    }
-});
-
-// Vigtigt at det her er req.session.user.userID
-app.post('/add-activity', async (req, res) => {
-    if (!req.session || !req.session.user.userId) {
-        return res.status(401).send('User not logged in');
-    }
-    //Dataen der er sendt fra brugeren gemmes 
-    const { name, calories, duration, date } = req.body;
-    try {
-        //Der bliver oprettet en forbindelse til databasen
-        let pool = await sql.connect(config);
-        await pool.request()
-            //Sikrer at dataen er korrekt og beskytter vores SQL (validering)
-            .input('UserID', sql.Int, req.session.user.userId)
-            .input('ActivityName', sql.NVarChar, name)
-            .input('Duration', sql.Int, duration)
-            .input('CaloriesBurned', sql.Decimal(18, 0), calories)
-            .input('Date', sql.DateTime, new Date(date)) 
-            //Aktiviteterne sættes ind i databasen 
-            .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
-
-        //Bekræfter at dataen er gemt 
-        res.send({ success: true, message: 'Aktiviteten er gemt' });
-    } catch (err) {
-        console.error('Database operation error:', err);
-        res.status(500).send('Server error');
-    }
-});
 
 
 
@@ -927,7 +950,6 @@ app.delete('/water-intake/:waterIntakeId', async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 // Hav den her i bunden 

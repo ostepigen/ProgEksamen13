@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 //samt den indtastede værdi i minut inputtet, som parametre. 
                 button.textContent = 'Registrer aktivtet';
                 button.addEventListener('click', () => 
-                tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value));
+                tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value, activity.ActivityTypeID));
 
                 //Tilføjer navn, kaloier pr time, tidsindput og kanp til html
                 listItem.innerHTML = `<li>${activity.ActivityName} 
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
 //Funktion der tilføjer dagens aktivitet til både html og POST 
 //Den her funktion bliver kaldt ovenover når brugeren klikker på knappen
 //Egentlig er det ikke et krav at det vises på siden? skal vi fjerne det??
-function tilføjTilIDag(name, caloriesPerHour, minutes) {
+function tilføjTilIDag(name, caloriesPerHour, minutes, activityTypeID) {
     const dagensListe = document.getElementById('dagensAktiviteter');
     const nyAktivitet = document.createElement('li');
    
@@ -85,7 +85,8 @@ function tilføjTilIDag(name, caloriesPerHour, minutes) {
             name,
             calories: calories.toFixed(2),
             duration: minutes,
-            date
+            date,
+            activityTypeID
         })
     })
     .then(response => response.json())
