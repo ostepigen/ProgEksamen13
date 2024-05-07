@@ -41,132 +41,6 @@ app.get('/', (req, res) => {
 
 
 
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-                            /////////////////// MEAL CREATOR ///////////////////
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-                                /////////////////// MEAL TRACKER ///////////////////
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-                                /////////////////// ACTIVITY TRACKER  ///////////////////
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-                                    /////////////////// DAILY NUTRI  ///////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-////AKTIVITETS TRACKER stine arbejder på den
-app.get('/activity-types', async (req, res) => {
-    try {
-        // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
-        await sql.connect(config);
-
-        // Henter alle rækker fra tabellen med aktivitetstyper
-        const result = await sql.query('SELECT * FROM ActivityTypesNy');
-
-        // Sender dataene tilbage til klienten som json
-        res.json(result.recordset);
-    } catch (err) {
-        console.error('SQL error', err);
-        res.status(500).send('Error on the server.');
-    }
-});
-
-// Stine tester
-// Vigtigt at det her er req.session.user.userID
-app.post('/add-activity', async (req, res) => {
-    if (!req.session || !req.session.user.userId) {
-        return res.status(401).send('User not logged in');
-    }
-    //Dataen der er sendt fra brugeren gemmes 
-    const { name, calories, duration, date } = req.body;
-    try {
-        //Der bliver oprettet en forbindelse til databasen
-        let pool = await sql.connect(config);
-        await pool.request()
-            //Sikrer at dataen er korrekt og beskytter vores SQL (validering)
-            .input('UserID', sql.Int, req.session.user.userId)
-            .input('ActivityName', sql.NVarChar, name)
-            .input('Duration', sql.Int, duration)
-            .input('CaloriesBurned', sql.Decimal(18, 0), calories)
-            .input('Date', sql.DateTime, new Date(date)) 
-            //Aktiviteterne sættes ind i databasen 
-            .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
-
-        //Bekræfter at dataen er gemt 
-        res.send({ success: true, message: 'Aktiviteten er gemt' });
-    } catch (err) {
-        console.error('Database operation error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-/////// OPDATER BASALT STOFSKIFTE /////////
-
 // User
 app.post('/create-user', async (req, res) => {
     const { username, password } = req.body;
@@ -341,6 +215,20 @@ app.get('/get-user-info', async (req, res) => {
     }
 });
 
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+                            /////////////////// MEAL CREATOR ///////////////////
+
+
+
+
 // muliggør det at brugeren laver et måltid ud fra ingredienser i databasen (route)
 ///////// NUVÆRENDE TEST SOM VIRKER MED AT INDHENTE DATA FRA DATABASEN! ////////////
 
@@ -437,15 +325,15 @@ app.get('/search-ingredient-info/:name', async (req, res) => {
         let pool = await sql.connect(config);
         const results = await pool.request()
             .input('FoodName', sql.NVarChar, `%${name}%`)
-            .query('SELECT FoodName, FoodID FROM InformationFood WHERE FoodName LIKE @FoodName');
+            .query('SELECT FoodName, FoodID FROM DataFood WHERE FoodName LIKE @FoodName');
         res.json(results.recordset);
     } catch (err) {
         console.error('Database query failed:', err);
         res.status(500).send('Database query error');
     }
 });
-
-// Endpoint to get detailed information for a specific ingredient
+ 
+// Endpoint to get detailed information for a specific ingredient by ID
 app.get('/get-ingredient-info/:id', async (req, res) => {
     let id = req.params.id;
     try {
@@ -466,85 +354,15 @@ app.get('/get-ingredient-info/:id', async (req, res) => {
 
 
 
-
-
-// ANDERS mealLogger og waterIntake
-// Endpoint to add a water intake record
-// Endpoint to record a new water intake
-app.post('/water-intake', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Not logged in');
-    }
-
-    const { liquidName, amount } = req.body;
-    try {
-        const pool = await sql.connect(config);
-        await pool.request()
-            .input('UserID', sql.Int, req.session.user.userId)
-            .input('LiquidName', sql.NVarChar, liquidName)
-            .input('Amount', sql.Int, amount)
-            .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
-
-        res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
-    } catch (err) {
-        console.error('Database operation failed:', err);
-        res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
-    }
-});
-
-// Endpoint to retrieve water intake records for the logged in user
-// In your server.js - ensure your query fetches all necessary fields
-// Assuming your database has columns named exactly as LiquidName, Amount, and IntakeDateTime
-app.get('/water-intake', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Not logged in');
-    }
-
-    try {
-        const pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('UserID', sql.Int, req.session.user.userId)
-            .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
-
-        res.status(200).json(result.recordset);
-    } catch (err) {
-        console.error('Database operation failed:', err);
-        res.status(500).send('Failed to get water intake records');
-    }
-});
-
-// Endpoint to delete a water intake record
-app.delete('/water-intake/:waterIntakeId', async (req, res) => {
-    if (!req.session || !req.session.user || !req.session.user.userId) {
-        return res.status(401).send('User not logged in');
-    }
-
-    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
-    if (isNaN(waterIntakeId)) {
-        return res.status(400).send('Invalid Water Intake ID');
-    }
-
-    try {
-        let pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('WaterIntakeId', sql.Int, waterIntakeId)
-            .input('UserID', sql.Int, req.session.user.userId)
-            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId AND UserID = @UserID');
-
-        if (result.rowsAffected[0] > 0) {
-            res.json({ success: true, message: 'Water intake deleted successfully' });
-        } else {
-            res.status(404).send('Water intake record not found or user mismatch');
-        }
-    } catch (err) {
-        console.error('Database operation failed:', err);
-        res.status(500).send('Failed to delete water intake');
-    }
-});
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-// Endpoint to delete a logged meal
+                                /////////////////// MEAL TRACKER ///////////////////
+
+
+
+
 // Endpoint to delete a logged meal
 app.delete('/api/delete-meal-eaten/:mealEatenId', async (req, res) => {
     if (!req.session || !req.session.user || !req.session.user.userId) {
@@ -823,9 +641,73 @@ app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
 
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-////////////// DAILY NUTRI ////////////////
+
+                                /////////////////// ACTIVITY TRACKER  ///////////////////
+
+
+
+////AKTIVITETS TRACKER
+app.get('/activity-types', async (req, res) => {
+    try {
+        // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
+        await sql.connect(config);
+
+        // Henter alle rækker fra tabellen med aktivitetstyper
+        const result = await sql.query('SELECT * FROM ActivityTypesNy');
+
+        // Sender dataene tilbage til klienten som json
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('SQL error', err);
+        res.status(500).send('Error on the server.');
+    }
+});
+
+// Vigtigt at det her er req.session.user.userID
+app.post('/add-activity', async (req, res) => {
+    if (!req.session || !req.session.user.userId) {
+        return res.status(401).send('User not logged in');
+    }
+    //Dataen der er sendt fra brugeren gemmes 
+    const { name, calories, duration, date } = req.body;
+    try {
+        //Der bliver oprettet en forbindelse til databasen
+        let pool = await sql.connect(config);
+        await pool.request()
+            //Sikrer at dataen er korrekt og beskytter vores SQL (validering)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('ActivityName', sql.NVarChar, name)
+            .input('Duration', sql.Int, duration)
+            .input('CaloriesBurned', sql.Decimal(18, 0), calories)
+            .input('Date', sql.DateTime, new Date(date)) 
+            //Aktiviteterne sættes ind i databasen 
+            .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date)');
+
+        //Bekræfter at dataen er gemt 
+        res.send({ success: true, message: 'Aktiviteten er gemt' });
+    } catch (err) {
+        console.error('Database operation error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                                    /////////////////// DAILY NUTRI  ///////////////////
+
+
+
 // og forbrændre kalorier fra activities 
 // DAILY NUTRI
 app.get('/user/daily-intake', async (req, res) => {
@@ -966,6 +848,86 @@ app.get('/user/basalstofskifte', async (req, res) => {
         res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 });
+
+
+
+
+// Endpoint to record a new water intake
+app.post('/water-intake', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('Not logged in');
+    }
+
+    const { liquidName, amount } = req.body;
+    try {
+        const pool = await sql.connect(config);
+        await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('LiquidName', sql.NVarChar, liquidName)
+            .input('Amount', sql.Int, amount)
+            .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
+
+        res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
+    }
+});
+
+// Endpoint to retrieve water intake records for the logged in user
+// In your server.js - ensure your query fetches all necessary fields
+// Assuming your database has columns named exactly as LiquidName, Amount, and IntakeDateTime
+app.get('/water-intake', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('Not logged in');
+    }
+
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
+
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to get water intake records');
+    }
+});
+
+// Endpoint to delete a water intake record
+app.delete('/water-intake/:waterIntakeId', async (req, res) => {
+    if (!req.session || !req.session.user || !req.session.user.userId) {
+        return res.status(401).send('User not logged in');
+    }
+
+    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
+    if (isNaN(waterIntakeId)) {
+        return res.status(400).send('Invalid Water Intake ID');
+    }
+
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('WaterIntakeId', sql.Int, waterIntakeId)
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId AND UserID = @UserID');
+
+        if (result.rowsAffected[0] > 0) {
+            res.json({ success: true, message: 'Water intake deleted successfully' });
+        } else {
+            res.status(404).send('Water intake record not found or user mismatch');
+        }
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to delete water intake');
+    }
+});
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 // Hav den her i bunden 
