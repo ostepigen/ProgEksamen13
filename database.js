@@ -30,12 +30,44 @@ app.use(session({
 
 // Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
+});
+
+// Function to ensure the user is logged in
+function checkLogin(req, res, next) {
+    if (!req.session.user) {
+        res.redirect('/'); // Redirect to login if not logged in
+    } else {
+        next(); // Continue if logged in
+    }
+}
+
+// Define routes to serve HTML pages that require login
+const pages = [
+    'mealcreator.html', 'mealtracker.html', 'dailynutri.html',
+    'activityTracker.html', 'profile.html'
+];
+
+pages.forEach(page => {
+    app.get(`/${page}`, checkLogin, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'html', page));
+    });
+});
+
+// Logout route that destroys the session
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.log(err);
+            res.status(500).send("Failed to logout.");
+        } else {
+            res.redirect('/public/html/login.html');
+        }
+    });
 });
 
 
-
-                                /////////////////// ACTIVITY TRACKER  ///////////////////
+                    /////////////////// ACTIVITY TRACKER  ///////////////////
 
 
 
@@ -963,7 +995,7 @@ app.delete('/water-intake/:waterIntakeId', async (req, res) => {
 
 
 // Hav den her i bunden 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-
+module.exports = app;
