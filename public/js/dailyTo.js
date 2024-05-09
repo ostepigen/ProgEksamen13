@@ -94,7 +94,7 @@ function updateDailyIntakeTable(hoursData) {
 <div class="column-title">TIME/DATE</div>
 <div class="column-title">CALORIE INTAKE</div>
 <div class="column-title">LIQUID INTAKE</div>
-<div class="column-title">COMBUSTION (BMR + ACTIVITIES)</div>
+<div class="column-title">CALORIES BURNT (BMR + ACTIVITIES)</div>
 <div class="column-title">CALORIE SURPLUS/DEFICIT</div>
         `;
         table.appendChild(header);

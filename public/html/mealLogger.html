@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Logger</title>
-    <link rel="stylesheet" href="css/mealLogger.css">
+    <link rel="stylesheet" href="/css/mealLogger.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
 </head>
+
 <body>
     <nav class="theHeader">
         <div class="logo-container">
@@ -24,7 +26,6 @@
         <button class="goBackButton" onclick="window.history.back()">Go Back</button>
         <h2>Log Your Meal</h2>
         <select id="mealDropdown">
-            <!-- Meal options will be populated here -->
         </select>
         <input type="number" id="mealWeight" placeholder="Weight in grams" required>
         <button onclick="logMeal()">Log Meal</button>
@@ -36,19 +37,12 @@
         <input type="text" id="location" placeholder="Location" />
         <button type="button" onclick="submitMealEdit()">Submit Changes</button>
     </form>
-    
-
-    
-<div id="loggedMeals">
-    <h2>Logged Meals</h2>
-    <ul id="loggedMealsList">
-        <!-- Logged meals will be appended here -->
-    </ul>
-</div>
-
-<!--        -->
-
-
+    <div id="loggedMeals">
+        <h2>Logged Meals</h2>
+        <ul id="loggedMealsList">
+        </ul>
+    </div>
     <script src="/js/mealLogger.js" defer></script>
 </body>
+
 </html>

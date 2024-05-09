@@ -112,19 +112,18 @@ function opdaterBasaltStofskifte() {
             //1 Mj = 239 kcal
             const basaltStofskifte = beregnBasaltStofskifte(Weight, Age, Sex);
             document.getElementById('basalestofskifte').innerHTML = `
-                <h3>Dit basale stofskifte ${basaltStofskifte} MJ pr dag beregnet ud fra din vægt, alder og køn</h3>
-                <p>Dette svarer til ${basaltStofskifte * 239} kcal</p>
+                <h3>Your basal metabolic rate ${basaltStofskifte} MJ per day calculated based on your weight, age and gender</h3>
+                <p>This equals to ${basaltStofskifte * 239} kcal</p>
             `;
         })
         .catch(error => console.error('Fejl ved hentning af brugerinfo:', error));
 }
-
+ 
 // Beregner det basale stofskifte baseret på vægt, alder og køn (formel fra link i opgave beskrivelsen)
 function beregnBasaltStofskifte(weight, age, sex) {
-    //Tjekker lige om den henter rigtig data
     console.log(`Vægt: ${weight}, Alder: ${age}, Køn: ${sex}`);
     let mjBasalstofskifte;
-    if (sex === 'Kvinde') {
+    if (sex === 'Woman') {
         if (age < 3) mjBasalstofskifte = 0.244 * weight + 0.13;
         else if (age <= 10) mjBasalstofskifte = 0.085 * weight + 2.03;
         else if (age <= 18) mjBasalstofskifte = 0.056 * weight + 2.9;
@@ -132,7 +131,7 @@ function beregnBasaltStofskifte(weight, age, sex) {
         else if (age <= 60) mjBasalstofskifte = 0.0364 * weight + 3.47;
         else if (age <= 75) mjBasalstofskifte = 0.0386 * weight + 2.88;
         else mjBasalstofskifte = 0.0410 * weight + 2.61;
-    } else if (sex === 'Mand') {
+    } else if (sex === 'Man') {
         if (age < 3) mjBasalstofskifte = 0.249 * weight - 0.13;
         else if (age <= 10) mjBasalstofskifte = 0.095 * weight + 2.11;
         else if (age <= 18) mjBasalstofskifte = 0.074 * weight + 2.75;
@@ -141,11 +140,10 @@ function beregnBasaltStofskifte(weight, age, sex) {
         else if (age <= 75) mjBasalstofskifte = 0.0499 * weight + 2.93;
         else mjBasalstofskifte = 0.035 * weight + 3.43;
     }
-    return mjBasalstofskifte.toFixed(2); // Returnerer værdien afrundet til to decimaler
+    return mjBasalstofskifte.toFixed(2);
 }
 
 // Når siden indlæses
 document.addEventListener('DOMContentLoaded', () => {
     opdaterBasaltStofskifte();
 });
-

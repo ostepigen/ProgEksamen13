@@ -1,0 +1,25 @@
+{
+    "name": "test",
+    "version": "1.0.0",
+    "description": "",
+    "main": "config.js",
+    "type": "module",
+    "directories": {
+      "test": "test"
+    },
+    "scripts": {
+        "test": "mocha ../test/test.js"
+      },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "chai-http": "^4.4.0",
+      "joi": "^17.12.3"
+    },
+    "devDependencies": {
+      "chai": "^5.1.1",
+      "mocha": "^10.4.0"
+    }
+  }
+  

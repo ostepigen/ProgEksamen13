@@ -29,44 +29,44 @@
 
     <main>
         <section id="updateProfile" class="profile-section">
-            <h3>Opdater profil detaljer</h3>
+            <h3>Update profile details</h3>
             <form id="updateForm">
                 <input type="hidden" id="updateUsername">
                 <div class="inputGroup">
-                    <label for="updateWeight">Vægt</label>
+                    <label for="updateWeight">Weight</label>
                     <input type="number" id="updateWeight" placeholder="Your weight">
                 </div>
                 <div class="inputGroup">
-                    <label for="updateAge">Alder</label>
+                    <label for="updateAge">Age</label>
                     <input type="number" id="updateAge" placeholder="Your age">
                 </div>
                 <div class="inputGroup">
-                    <label for="updateSex">Køn</label>
+                    <label for="updateSex">Sex</label>
                     <select id="updateSex" required>
-                        <option value="" selected disabled>Vælg køn</option>
-                        <option value="Mand">Mand</option>
-                        <option value="Kvinde">Kvinde</option>
+                        <option value="" selected disabled>Choose sex</option>
+                        <option value="Man">Man</option>
+                        <option value="Woman">Woman</option>
                     </select>
                 </div>
-                <button type="submit" class="submitButton">Opdater Profil</button>
+                <button type="submit" class="submitButton">Update Profile</button>
             </form>
         </section>
 
 
 
         <section id="currentProfileDetails" class="profile-section">
-            <h3>Personlige detaljer</h3>
-            <p><b>Brugernavn:</b> <span id="currentUsername"></span></p>
-            <p><b>Vægt:</b> <span id="currentWeight"></span> kg</p>
-            <p><b>Alder:</b> <span id="currentAge"></span> år</p>
-            <p><b>Køn:</b> <span id="currentSex"></span></p>
+            <h3>Profile details</h3>
+            <p><b>Username:</b> <span id="currentUsername"></span></p>
+            <p><b>Weight:</b> <span id="currentWeight"></span> kg</p>
+            <p><b>Age:</b> <span id="currentAge"></span> years</p>
+            <p><b>Sex:</b> <span id="currentSex"></span></p>
         </section>
 
         <section id="deleteProfile" class="profile-section">
-            <h3>Slet din profil</h3>
+            <h3>Delete your profile</h3>
             <form id="deleteForm">
                 <input type="hidden" id="deleteUsername">
-                <button type="submit" class="submitButton">Slet Profil</button>
+                <button type="submit" class="submitButton">Delete Profile</button>
             </form>
         </section>
 
