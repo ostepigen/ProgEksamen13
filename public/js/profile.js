@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', fetchAndDisplayUserInfo);
 document.getElementById('deleteForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    if (confirm('Er du sikker på, at du vil slette din profil? Denne handling kan ikke fortrydes.')) {
+    if (confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
         fetch('/delete-user', {
             method: 'POST',
             headers: {
@@ -93,7 +93,7 @@ document.getElementById('deleteForm').addEventListener('submit', function(event)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Profil er hermed slettet!');
+                alert('Profile has been deleted!');
                 // Redirect to the login page or any other appropriate action
                 window.location.href = '/login.html';
             } else {

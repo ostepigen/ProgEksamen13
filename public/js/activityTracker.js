@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 //Når brugeren klikker på registrer aktivtet, 
                 //kaldes funktionen med den bestemte aktivtes navn og kalorier fra datasættet,
                 //samt den indtastede værdi i minut inputtet, som parametre. 
-                button.textContent = 'Registrer aktivtet';
+                button.textContent = 'Register activity';
                 button.addEventListener('click', () => 
                 tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value, activity.ActivityTypeID));
 
@@ -113,8 +113,8 @@ function opdaterBasaltStofskifte() {
             const basaltStofskifte = beregnBasaltStofskifte(Weight, Age, Sex);
             document.getElementById('basalestofskifte').innerHTML = `
                 <h3>Your basal metabolic rate ${basaltStofskifte} MJ per day calculated based on your weight, age and gender</h3>
-                <p>This equals to ${basaltStofskifte * 239} kcal</p>
-            `;
+                <p>This equals to ${(basaltStofskifte * 239).toFixed(2)} kcal</p>
+                `;
         })
         .catch(error => console.error('Fejl ved hentning af brugerinfo:', error));
 }

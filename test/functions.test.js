@@ -1,17 +1,3 @@
-// // Dynamically import chai using CommonJS syntax
-// const chai = require('chai');
-// const expect = chai.expect;
-// const beregnBasaltStofskifte = require('../public/js/activityTracker'); // Ensure this path is correct
-
-// describe('Basal Metabolic Rate Calculation', function() {
-//     it('should return correct BMR for a female under 3 years old', function() {
-//         const result = beregnBasaltStofskifte(10, 2, 'Kvinde');
-//         expect(result).to.equal('2.57');
-//     });
-
-//     // Add more tests here for other age ranges and sexes
-// });
-
 // Dynamic import for chai and expect
 let chai, expect;
 
@@ -22,7 +8,6 @@ describe('Basal Metabolic Rate Calculation', function() {
     });
 
     it('should return correct BMR for a female under 3 years old', async function() {
-        // Ensure the dynamic import for your function module
         const { default: beregnBasaltStofskifte } = await import('../public/js/testFile.js');
         const result = beregnBasaltStofskifte(10, 2, 'Woman');
         expect(result).to.equal('2.57');
@@ -30,7 +15,7 @@ describe('Basal Metabolic Rate Calculation', function() {
 
     it('should return correct BMR for a male aged 18 years', async function() {
         const { default: beregnBasaltStofskifte } = await import('../public/js/testFile.js');
-        const result = beregnBasaltStofskifte(50, 15, 'Man');
+        const result = beregnBasaltStofskifte(50, 18, 'Man');
         expect(result).to.equal('6.45'); // Expected based on the formula: (0.056 * 50) + 2.9 = 6.45
     });
     

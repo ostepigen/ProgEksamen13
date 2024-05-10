@@ -122,10 +122,10 @@ function updateDailyIntakeTable(hoursData) {
         liquidCell.textContent = `${item.TotalLiquid} ml`;
 
         const totalBurnedCalories = parseFloat(item.BasalMetabolicRate) + (item.TotalCaloriesBurned || 0);
-        const combustionCell = document.createElement('div');
-        combustionCell.className = 'cell';
+        const basalMR = document.createElement('div');
+        basalMR.className = 'cell';
         // Decide the format based on whether the decimal part is zero
-        combustionCell.textContent = `${formatCalories(totalBurnedCalories)} kcal`;
+        basalMR.textContent = `${formatCalories(totalBurnedCalories)} kcal`;
 
 
 
@@ -135,7 +135,7 @@ function updateDailyIntakeTable(hoursData) {
 
         const balanceCell = document.createElement('div');
         balanceCell.className = 'cell';
-        balanceCell.textContent = `${runningBalance.toFixed(2)} kcal ${runningBalance < 0 ? '(Underskud)' : '(Overskud)'}`;
+        balanceCell.textContent = `${runningBalance.toFixed(2)} kcal ${runningBalance < 0 ? '(Deficit)' : '(Surplus)'}`;
 
         
 
@@ -143,7 +143,7 @@ function updateDailyIntakeTable(hoursData) {
         row.appendChild(timeCell);
         row.appendChild(caloriesCell);
         row.appendChild(liquidCell);
-        row.appendChild(combustionCell);
+        row.appendChild(basalMR);
         row.appendChild(balanceCell);
 
         table.appendChild(row);
