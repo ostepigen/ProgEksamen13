@@ -1,52 +1,46 @@
 const apiUrl = '/water-intake';
 
 function getUserLiquids() {
-    const userId = document.getElementById('userId').value;
-    if (!userId) {
-        alert('Please enter a user ID.');
-        return;
+    console.log('Making fetch call to the server');
+    fetch(`/water-intaken`)
+    //Konveterer json
+    .then(response => response.json())
+    //Det konveretede objekt bruges til at opdatere brugerens side, så de kan få vist 
+        .then(data => {
+            console.log('Data hentet fra serveren:', data);
+
+            data.forEach(water => {
+                const waterContainer = document.getElementById('liquidList');
+                const waterDiv = document.createElement('div');
+                waterDiv.classList.add('loggedWater');
+
+                waterDiv.innerHTML = `
+                    <p>${water.LiquidName} - ${water.Amount} ml</p>
+                    <p>Consumed at:  ${water.IntakeDateTime}</p>
+                    <button class="deleteButton" onclick="removeLiquid(this.parentNode, ${water.WaterIntakeId})">Delete</button>
+                `;
+                waterContainer.appendChild(waterDiv);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching user liquids:', error);
+            alert('Failed to fetch liquids for the specified user.');
+        });
     }
 
-    fetch(`${apiUrl}/user/${userId}`)
-    .then(response => response.json())
-    .then(data => {
-        const waterContainer = document.getElementById('liquidList');
-        waterContainer.innerHTML = '';  // Clear existing entries
-        data.forEach(water => appendToLiquidList(water));
-    })
-    .catch(error => {
-        console.error('Error fetching user liquids:', error);
-        alert('Failed to fetch liquids for the specified user.');
-    });
-}
 
-function appendToLiquidList(water) {
-    const waterContainer = document.getElementById('liquidList');
-    const waterDiv = document.createElement('div');
-    waterDiv.classList.add('loggedWater');
-    // Check if water.waterIntakeId is defined
-    waterDiv.innerHTML = `
-        <p>${water.liquidName} - ${water.amount} ml</p>
-        <p>Consumed at: ${new Date(water.intakeDateTime).toLocaleString()}</p>
-        <button onclick="removeLiquid(this.parentNode, ${water.waterIntakeId})">Delete</button>
-    `;
-    waterContainer.appendChild(waterDiv);
-}
-
-
-// Existing functions (addLiquid, removeLiquid, etc.) are unchanged
-
-
+//Funktion der sletter 
 function removeLiquid(element, waterIntakeId) {
-    console.log("Attempting to delete WaterIntakeId:", waterIntakeId); // Check what's being sent
     fetch(`/water-intake/${waterIntakeId}`, {
         method: 'DELETE'
     })
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            alert('Water intake deleted successfully');
-            element.remove();  // Remove the water intake entry from the DOM
+            alert('Liquid deleted successfully');
+            //Fjerner elementet fra siden
+            element.parentNode.removeChild(element); 
+            console.log(`nr ${waterIntakeId} er lige blevet slettet`);
         } else {
             throw new Error(result.message);
         }
@@ -70,7 +64,8 @@ function addLiquid() {
     const newLiquid = {
         liquidName: liquidName,
         amount: amount,
-        intakeDateTime: new Date().toISOString()  // assuming current time as intake time
+        intakeDateTime: new Date().toISOString()
+
     };
 
     fetch(apiUrl, {
@@ -80,34 +75,23 @@ function addLiquid() {
         },
         body: JSON.stringify(newLiquid)
     })
-    .then(response => {
-        if (response.ok) {
-            appendToLiquidList(newLiquid);  // Display new liquid in the list immediately
-            return response.json();
-        } else {
-            throw new Error('Failed to add liquid intake');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to add liquid intake. Please try again.');
-    });
+        .then(response => {
+            if (response.ok) {
+                console.log(newLiquid)
+                return response.json();
+            } else {
+                throw new Error('Failed to add liquid intake');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to add liquid intake. Please try again.');
+        });
 }
 
-function appendToLiquidList(water) {
-    const waterContainer = document.getElementById('liquidList');
-    const waterDiv = document.createElement('div');
-    waterDiv.classList.add('loggedWater');
-    waterDiv.innerHTML = `
-        <p>${water.liquidName} - ${water.amount} ml</p>
-        <p>Consumed at: ${new Date(water.intakeDateTime).toLocaleString()}</p>
-        <button onclick="removeLiquid(this.parentNode, ${water.waterIntakeId})">Delete</button>
-    `;
-    waterContainer.appendChild(waterDiv);
-}
 
-document.addEventListener("DOMContentLoaded", function () {
-    // You might want to load existing data here or keep it empty for fresh sessions
+document.addEventListener("DOMContentLoaded", function() {
+    getUserLiquids();
 });
 
 // Go back to mealtracker.html

@@ -36,13 +36,27 @@ function submitIngredient() {
 function updateAddedIngredientsDisplay() {
     let container = document.getElementById('addedIngredients');
     container.innerHTML = '<h3>Added Ingredients:</h3>';
-    mealData.ingredients.forEach(ing => {
+    mealData.ingredients.forEach((ing, index) => {
         let div = document.createElement('div');
         div.textContent = `${ing.quantity} grams of ${ing.name}`;
+        
+        //Tilføj en Remove-knap for hver ingrediens, så man kan fjerne den hvis det var en fejl
+        let removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+//Kalder funktionen der fjerner ingrediensen 
+        removeButton.onclick = function() { removeIngredient(index); }; 
+        div.appendChild(removeButton);
+
         container.appendChild(div);
     });
 }
- 
+function removeIngredient(index) {
+    //Fjerner ingrediensen fra arrayet baseret på index
+    mealData.ingredients.splice(index, 1);
+    //Opdaterer displayet af tilføjede ingredienser
+    updateAddedIngredientsDisplay();
+}
+
 function createMeal() {
     // Get user input for meal name
     let mealNameInput = document.getElementById('mealName');

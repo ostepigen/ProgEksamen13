@@ -1,5 +1,4 @@
 body {
-    background-color: #FFFFFF;
     font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
@@ -65,12 +64,12 @@ body {
 }
 
 #boxMealCreator1 {
+    background-color: #def6d8;
     display: flex;
     margin-top: 4%;
     margin-left: 8%;
     margin-right: 8%;
     margin-bottom: 3%;
-    background-color: white;
     border-style: solid;
     border-color: #99D9DE;
     border-width: 2px;
@@ -109,7 +108,7 @@ body {
 #inputs button {
     margin: 5px; 
     padding: 10px;
-    border: 1px solid #ccc;
+    border-color: #99D9DE;
     border-radius: 5px;
 }
 
@@ -146,11 +145,24 @@ body {
     margin-left: 8px;
     margin-bottom: 8px;
     position: relative;
-    background-color: #ffaaa6; 
-    border: 5px solid #ff6961;
     padding: 8px 45px;
 }
 
 
 
+.loggedWater{
+    border-color: #99D9DE;
+    border-radius: 5px;
+    background-color: #91C789;
+}
 
+.goBackButton, .deleteButton{
+    width: auto; 
+    background-color: #91C789;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 5px; 
+    padding: 10px;
+}

@@ -67,6 +67,88 @@ app.get('/logout', (req, res) => {
 });
 
 
+
+// Endpoint to record a new water intake
+app.post('/water-intake', async (req, res) => {
+    // Log session information
+    console.log('User session:', req.session.user);
+  
+    // Check if the user session exists and has username
+    if (!req.session.user || !req.session.user.username) {
+        return res.status(401).send('Not logged in');
+    }
+  
+    // Log the user ID from the session
+    console.log('User ID:', req.session.user.userId);
+  
+      const { liquidName, amount } = req.body;
+      try {
+          const pool = await sql.connect(config);
+          await pool.request()
+              .input('UserID', sql.Int, req.session.user.userId)
+              .input('LiquidName', sql.NVarChar, liquidName)
+              .input('Amount', sql.Int, amount)
+              .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
+  
+          res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
+      } catch (err) {
+          console.error('Database operation failed:', err);
+          res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
+      }
+  });
+  
+  // Endpoint to retrieve water intake records for the logged in user
+  // In your server.js - ensure your query fetches all necessary fields
+  // Assuming your database has columns named exactly as LiquidName, Amount, and IntakeDateTime
+  app.get('/water-intaken', async (req, res) => {
+      
+      if (!req.session.user.userId) {
+          return res.status(401).send('Not logged in');
+      }
+      console.log('User ID:', req.session.user.userId);
+      try {
+          const pool = await sql.connect(config);
+          const result = await pool.request()
+              .input('UserID', sql.Int, req.session.user.userId)
+              .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
+  
+  
+          res.status(200).json(result.recordset);
+  
+      } catch (err) {
+          console.error('Database operation failed:', err);
+          res.status(500).send('Failed to get water intake records');
+      }
+  });
+  
+  // Endpoint to delete a water intake record
+  app.delete('/water-intake/:waterIntakeId', async (req, res) => {
+    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
+    if (isNaN(waterIntakeId)) {
+        return res.status(400).send('Invalid Water Intake ID');
+    }
+
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('WaterIntakeId', sql.Int, waterIntakeId)
+            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId');
+
+        if (result.rowsAffected[0] > 0) {
+            res.json({ success: true, message: 'Water intake deleted successfully' });
+        } else {
+            res.status(404).send('Water intake record not found');
+        }
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to delete water intake');
+    }
+});
+  
+
+
+
+
                     /////////////////// ACTIVITY TRACKER  ///////////////////
 
 
@@ -916,77 +998,6 @@ app.get('/user/basalstofskifte', async (req, res) => {
 
 
 
-// Endpoint to record a new water intake
-app.post('/water-intake', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Not logged in');
-    }
-
-    const { liquidName, amount } = req.body;
-    try {
-        const pool = await sql.connect(config);
-        await pool.request()
-            .input('UserID', sql.Int, req.session.user.userId)
-            .input('LiquidName', sql.NVarChar, liquidName)
-            .input('Amount', sql.Int, amount)
-            .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
-
-        res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
-    } catch (err) {
-        console.error('Database operation failed:', err);
-        res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
-    }
-});
-
-// Endpoint to retrieve water intake records for the logged in user
-// In your server.js - ensure your query fetches all necessary fields
-// Assuming your database has columns named exactly as LiquidName, Amount, and IntakeDateTime
-app.get('/water-intake', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Not logged in');
-    }
-
-    try {
-        const pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('UserID', sql.Int, req.session.user.userId)
-            .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
-
-        res.status(200).json(result.recordset);
-    } catch (err) {
-        console.error('Database operation failed:', err);
-        res.status(500).send('Failed to get water intake records');
-    }
-});
-
-// Endpoint to delete a water intake record
-app.delete('/water-intake/:waterIntakeId', async (req, res) => {
-    if (!req.session || !req.session.user || !req.session.user.userId) {
-        return res.status(401).send('User not logged in');
-    }
-
-    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
-    if (isNaN(waterIntakeId)) {
-        return res.status(400).send('Invalid Water Intake ID');
-    }
-
-    try {
-        let pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('WaterIntakeId', sql.Int, waterIntakeId)
-            .input('UserID', sql.Int, req.session.user.userId)
-            .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId AND UserID = @UserID');
-
-        if (result.rowsAffected[0] > 0) {
-            res.json({ success: true, message: 'Water intake deleted successfully' });
-        } else {
-            res.status(404).send('Water intake record not found or user mismatch');
-        }
-    } catch (err) {
-        console.error('Database operation failed:', err);
-        res.status(500).send('Failed to delete water intake');
-    }
-});
 
 
 

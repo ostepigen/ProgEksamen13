@@ -1,51 +1,69 @@
 body {
+    background-color: #DFF0D8;
     font-family: 'Nunito', sans-serif;
-    background-color: #f0f0f0;
     margin: 0;
     padding: 0;
-    color: #333;
+    box-sizing: border-box;
+    background-image: url('header.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Nunito', sans-serif;
 }
 
 .theHeader {
-    background-color: #a8d5a2; /* Adjust to match the exact color */
-    padding: 10px 20px;
     display: flex;
-    justify-content: space-between;
+    background-color: #91c789; 
     align-items: center;
+    padding: 20px;
+    width: 100%;
 }
-
+ 
 .logo-container {
     display: flex;
     align-items: center;
 }
 
-.logo-container #logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: white; /* Or any other color */
+.nutriPicture {
+    margin-left: -5px;
 }
-
+ 
 .nutriPicture img {
-    height: 50px; /* Adjust the size as needed */
+    max-width: 40px;
+    height: auto;
 }
 
+ 
 .theHeader ul {
+    margin: 0;
+    padding: 0;
     list-style: none;
     display: flex;
+    height: 100px;
+    align-items: center;
+   margin-left: 25px;
 }
-
+ 
 .theHeader ul li {
-    padding: 0 10px;
+    margin-right: 50px;
 }
-
-.theHeader ul li a {
+ 
+.theHeader a {
     text-decoration: none;
-    color: white;
-    font-weight: bold;
+    color: #DFF0D8;
 }
 
-#mealLoggerContainer {
-    background-color: #a8d5a2; /* Adjust to match the exact color */
+#logo {
+    color: #DFF0D8; 
+    font-size: 35px;
+    margin-right: 10px;
+}
+
+/*Under header*/
+
+#mealLoggerContainer, #loggedMeals {
+    background-color: #FFFFFF;
     margin: 20px auto;
     padding: 20px;
     border-radius: 10px;
@@ -67,7 +85,7 @@ body {
 }
 
 #mealLoggerContainer button {
-    background-color: #4CAF50; /* Green background */
+    background-color:  #91C789;
     border: none;
     color: white;
     padding: 10px 20px;
@@ -80,4 +98,16 @@ body {
     border-radius: 5px;
 }
 
-/* Add any additional styles as necessary */
+button{
+    background-color:  #91C789;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+}
