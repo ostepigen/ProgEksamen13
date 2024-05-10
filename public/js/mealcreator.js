@@ -1,55 +1,59 @@
-// Object to store the current meal data
+//Objekt til at gemme data for det måltid brugeren er ved at oprette
 let mealData = {
     name: "",
     ingredients: []
 };
- 
-// Function to handle searching ingredients
+
+//Funktion til at søge efter ingredienser 
 function searchIngredients() {
     let searchTerm = document.getElementById('searchTerm').value;
+    //Forespørgsel til serveren med søgeordet
     fetch(`/${searchTerm}`)
-    .then(response => response.json())
-    .then(data => {
-        let select = document.getElementById('searchResults');
-        select.innerHTML = '';
-        data.forEach(food => {
-            let option = document.createElement('option');
-            option.textContent = food.FoodName;
-            option.value = food.FoodName;
-            select.appendChild(option);
+        .then(response => response.json())
+        .then(data => {
+            let select = document.getElementById('searchResults');
+            //Tømmer det man søgte før
+            select.innerHTML = '';
+            data.forEach(food => {
+                let option = document.createElement('option');
+                option.textContent = food.FoodName;
+                option.value = food.FoodName;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching ingredients:', error);
         });
-    })
-    .catch(error => {
-        console.error('Error fetching ingredients:', error);
-    });
 }
- 
-// Function to submit an ingredient and its quantity
+
+//Funktion til at tilføje en ingrediens til det måltid brugeren er i gang med at oprette
 function submitIngredient() {
     let selectedIngredient = document.getElementById('searchResults').value;
     let quantity = document.getElementById('quantity').value;
-    mealData.ingredients.push({name: selectedIngredient, quantity: quantity});
+    mealData.ingredients.push({ name: selectedIngredient, quantity: quantity });
     updateAddedIngredientsDisplay();
 }
- 
-// Update the display of added ingredients
+
+//Opdaterer visningen af de tilføjede ingredienser
 function updateAddedIngredientsDisplay() {
     let container = document.getElementById('addedIngredients');
     container.innerHTML = '<h3>Added Ingredients:</h3>';
     mealData.ingredients.forEach((ing, index) => {
         let div = document.createElement('div');
         div.textContent = `${ing.quantity} grams of ${ing.name}`;
-        
+
         //Tilføj en Remove-knap for hver ingrediens, så man kan fjerne den hvis det var en fejl
         let removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
-//Kalder funktionen der fjerner ingrediensen 
-        removeButton.onclick = function() { removeIngredient(index); }; 
+        //Kalder funktionen der fjerner ingrediensen 
+        removeButton.onclick = function () { removeIngredient(index); };
         div.appendChild(removeButton);
 
         container.appendChild(div);
     });
 }
+
+//Fjerner en specifik ingrediens fra måltidet
 function removeIngredient(index) {
     //Fjerner ingrediensen fra arrayet baseret på index
     mealData.ingredients.splice(index, 1);
@@ -57,30 +61,31 @@ function removeIngredient(index) {
     updateAddedIngredientsDisplay();
 }
 
+
+// Opretter et måltid baseret på brugerens indtastning og valgte ingredienser
 function createMeal() {
-    // Get user input for meal name
+    //Gemmer inputtet i en variabel
     let mealNameInput = document.getElementById('mealName');
     let mealName = mealNameInput.value.trim();
- 
-    // Validate meal name
+
+    //Brugeren skal indtaste navn
     if (!mealName) {
         alert('Please provide a meal name.');
         return;
     }
- 
-    // Validate ingredients list
+
+    //Og der skal være ingredienser i måltidet før det kan blive oprettet
     if (mealData.ingredients.length === 0) {
         alert('Please add at least one ingredient.');
         return;
     }
- 
-    // Prepare the request body with meal name and ingredients
+
     let requestBody = {
         mealName: mealName,
         ingredients: mealData.ingredients
     };
- 
-    // Send the POST request to create the meal
+
+    //Sender en POST andmodning til servren 
     fetch('/create-meal', {
         method: 'POST',
         headers: {
@@ -89,42 +94,45 @@ function createMeal() {
         credentials: 'include',
         body: JSON.stringify(requestBody)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Meal created successfully!');
-            addMealToDisplay(mealName, mealData.ingredients);
- 
-            // Clear the inputs for next meal entry
-            document.getElementById('mealName').value = '';
-            document.getElementById('searchTerm').value = '';
-            document.getElementById('quantity').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-            mealData.name = '';
-            mealData.ingredients = []; // Reset the meal data
-            updateAddedIngredientsDisplay(); // Update the display of added ingredients
-        } else {
-            alert('Failed to create meal: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error creating meal:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Meal created successfully!');
+                addMealToDisplay(mealName, mealData.ingredients);
+
+                //Tømmer felterne, så brugeren kan oprette et nyt måltid
+                document.getElementById('mealName').value = '';
+                document.getElementById('searchTerm').value = '';
+                document.getElementById('quantity').value = '';
+                document.getElementById('searchResults').innerHTML = '';
+                mealData.name = '';
+                mealData.ingredients = [];
+
+                //Kalder funktionen der viser de tilføjede ingredienser, så den igen er tom 
+                updateAddedIngredientsDisplay();
+            } else {
+                alert('Failed to create meal: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error creating meal:', error);
+        });
 }
- 
+
+//Viser oprettede måltider på siden
 function addMealToDisplay(mealName, ingredients) {
-    let container = document.getElementById('mealDisplayContainer'); // Ensure this container exists in your HTML
- 
-    // Create a box to display the meal
+    let container = document.getElementById('mealDisplayContainer'); 
+
+    
     let mealBox = document.createElement('div');
     mealBox.classList.add('meal-box');
- 
-    // Add meal name
+
+    //Viser navnet på måltidet
     let mealNameElement = document.createElement('h3');
     mealNameElement.textContent = mealName;
     mealBox.appendChild(mealNameElement);
- 
-    // List ingredients
+
+    //Ingredienserne på måltidet 
     let ul = document.createElement('ul');
     ingredients.forEach(ing => {
         let li = document.createElement('li');
@@ -132,43 +140,44 @@ function addMealToDisplay(mealName, ingredients) {
         ul.appendChild(li);
     });
     mealBox.appendChild(ul);
- 
-    // Append the meal box to the container
+
+    //Tilføjer måltidet til boksen
     container.appendChild(mealBox);
 }
-// Function to handle searching ingredients for information
+
+//Funktion til at søge om information på fødevare
 function searchForInformation() {
     let searchTerm = document.getElementById('infoSearchTerm').value;
     fetch(`/search-ingredient-info/${searchTerm}`)
-    .then(response => response.json())
-    .then(data => {
-        let select = document.getElementById('infoSearchResults');
-        select.innerHTML = ''; // Clear previous entries
-        data.forEach(food => {
-            let option = document.createElement('option');
-            option.textContent = food.FoodName;
-            option.value = food.FoodID; // Storing FoodID as value for later retrieval
-            select.appendChild(option);
+        .then(response => response.json())
+        .then(data => {
+            let select = document.getElementById('infoSearchResults');
+            select.innerHTML = '';
+            data.forEach(food => {
+                let option = document.createElement('option');
+                option.textContent = food.FoodName;
+                option.value = food.FoodID;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching ingredients:', error);
         });
-    })
-    .catch(error => {
-        console.error('Error fetching ingredients:', error);
-    });
 }
- 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
 // Function to get information of the selected ingredient from the dropdown
 function getIngredientInformation() {
     let selectedFoodID = document.getElementById('infoSearchResults').value;
     fetch(`/get-ingredient-info/${selectedFoodID}`)
-    .then(response => response.json())
-    .then(data => {
-        let container = document.getElementById('ingredientInformation');
-        container.innerHTML = ''; // Clear previous information
-        if(data && data.length > 0) {
-            const info = data[0]; // Assuming the first record is what we want
-            container.innerHTML = `
+        .then(response => response.json())
+        .then(data => {
+            let container = document.getElementById('ingredientInformation');
+            container.innerHTML = ''; // Clear previous information
+            if (data && data.length > 0) {
+                const info = data[0]; // Assuming the first record is what we want
+                container.innerHTML = `
                 <p><strong>Name:</strong> ${info.FoodName}</p>
                 <p><strong>Food ID:</strong> ${info.FoodID}</p>
                 <p><strong>Taxonomic Name:</strong> ${info.TaxonomicName}</p>
@@ -178,11 +187,11 @@ function getIngredientInformation() {
                 <p><strong>Fat:</strong> ${info.Fat}g</p>
                 <p><strong>Fiber:</strong> ${info.Fiber}g</p>
             `;
-        } else {
-            container.innerHTML = '<p>No information found for selected ingredient.</p>';
-        }
-    })
-    .catch(error => {
-        console.error('Error getting ingredient information:', error);
-    });
+            } else {
+                container.innerHTML = '<p>No information found for selected ingredient.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error getting ingredient information:', error);
+        });
 }

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 minutesInput.type = 'number';
                 //Vi sætter en time som standart varighed
-                minutesInput.value = 60; 
+                minutesInput.value = 60;
                 //Styling af inputfeltet
                 minutesInput.style.width = '50px';
 
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 //kaldes funktionen med den bestemte aktivtes navn og kalorier fra datasættet,
                 //samt den indtastede værdi i minut inputtet, som parametre. 
                 button.textContent = 'Register activity';
-                button.addEventListener('click', () => 
-                tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value, activity.ActivityTypeID));
+                button.addEventListener('click', () =>
+                    tilføjTilIDag(activity.ActivityName, activity.CaloriesPerHour, minutesInput.value, activity.ActivityTypeID));
 
                 //Tilføjer navn, kaloier pr time, tidsindput og kanp til html
                 listItem.innerHTML = `<li>${activity.ActivityName} 
@@ -64,11 +64,11 @@ document.addEventListener('DOMContentLoaded', function () {
 function tilføjTilIDag(name, caloriesPerHour, minutes, activityTypeID) {
     const dagensListe = document.getElementById('dagensAktiviteter');
     const nyAktivitet = document.createElement('li');
-   
+
     //Til at gemme dato og tid
-    const date = new Date().toISOString(); 
+    const date = new Date().toISOString();
     //Beregner kalorierne fra paramterenes input
-    const calories = (caloriesPerHour / 60) * minutes; 
+    const calories = (caloriesPerHour / 60) * minutes;
 
     //Gøt så brugren kan se den nuye registrerede aktivtet på siden
     nyAktivitet.textContent = `${date}: ${name} - ${calories.toFixed(2)} kcal (${minutes} min)`;
@@ -89,13 +89,13 @@ function tilføjTilIDag(name, caloriesPerHour, minutes, activityTypeID) {
             activityTypeID
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Aktivtet gemt:', data);
-    })
-    .catch((error) => {
-        console.error('Error saving activity:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            console.log('Aktivtet gemt:', data);
+        })
+        .catch((error) => {
+            console.error('Error saving activity:', error);
+        });
 }
 
 
@@ -118,7 +118,7 @@ function opdaterBasaltStofskifte() {
         })
         .catch(error => console.error('Fejl ved hentning af brugerinfo:', error));
 }
- 
+
 // Beregner det basale stofskifte baseret på vægt, alder og køn (formel fra link i opgave beskrivelsen)
 function beregnBasaltStofskifte(weight, age, sex) {
     console.log(`Vægt: ${weight}, Alder: ${age}, Køn: ${sex}`);
@@ -127,7 +127,7 @@ function beregnBasaltStofskifte(weight, age, sex) {
         if (age < 3) mjBasalstofskifte = 0.244 * weight + 0.13;
         else if (age <= 10) mjBasalstofskifte = 0.085 * weight + 2.03;
         else if (age <= 18) mjBasalstofskifte = 0.056 * weight + 2.9;
-        else if (age <= 30 )mjBasalstofskifte = 0.0615 * weight + 2.08;
+        else if (age <= 30) mjBasalstofskifte = 0.0615 * weight + 2.08;
         else if (age <= 60) mjBasalstofskifte = 0.0364 * weight + 3.47;
         else if (age <= 75) mjBasalstofskifte = 0.0386 * weight + 2.88;
         else mjBasalstofskifte = 0.0410 * weight + 2.61;

@@ -68,61 +68,56 @@ app.get('/logout', (req, res) => {
 
 
 
-// Endpoint to record a new water intake
 app.post('/water-intake', async (req, res) => {
-    // Log session information
     console.log('User session:', req.session.user);
-  
-    // Check if the user session exists and has username
+
     if (!req.session.user || !req.session.user.username) {
         return res.status(401).send('Not logged in');
     }
-  
-    // Log the user ID from the session
+
+
     console.log('User ID:', req.session.user.userId);
-  
-      const { liquidName, amount } = req.body;
-      try {
-          const pool = await sql.connect(config);
-          await pool.request()
-              .input('UserID', sql.Int, req.session.user.userId)
-              .input('LiquidName', sql.NVarChar, liquidName)
-              .input('Amount', sql.Int, amount)
-              .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
-  
-          res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
-      } catch (err) {
-          console.error('Database operation failed:', err);
-          res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
-      }
-  });
-  
-  // Endpoint to retrieve water intake records for the logged in user
-  // In your server.js - ensure your query fetches all necessary fields
-  // Assuming your database has columns named exactly as LiquidName, Amount, and IntakeDateTime
-  app.get('/water-intaken', async (req, res) => {
-      
-      if (!req.session.user.userId) {
-          return res.status(401).send('Not logged in');
-      }
-      console.log('User ID:', req.session.user.userId);
-      try {
-          const pool = await sql.connect(config);
-          const result = await pool.request()
-              .input('UserID', sql.Int, req.session.user.userId)
-              .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
-  
-  
-          res.status(200).json(result.recordset);
-  
-      } catch (err) {
-          console.error('Database operation failed:', err);
-          res.status(500).send('Failed to get water intake records');
-      }
-  });
-  
-  // Endpoint to delete a water intake record
-  app.delete('/water-intake/:waterIntakeId', async (req, res) => {
+
+    const { liquidName, amount } = req.body;
+    try {
+        const pool = await sql.connect(config);
+        await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .input('LiquidName', sql.NVarChar, liquidName)
+            .input('Amount', sql.Int, amount)
+            .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
+
+        res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
+    }
+});
+
+
+app.get('/water-intaken', async (req, res) => {
+
+    if (!req.session.user.userId) {
+        return res.status(401).send('Not logged in');
+    }
+    console.log('User ID:', req.session.user.userId);
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('UserID', sql.Int, req.session.user.userId)
+            .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
+
+
+        res.status(200).json(result.recordset);
+
+    } catch (err) {
+        console.error('Database operation failed:', err);
+        res.status(500).send('Failed to get water intake records');
+    }
+});
+
+// Endpoint to delete a water intake record
+app.delete('/water-intake/:waterIntakeId', async (req, res) => {
     const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
     if (isNaN(waterIntakeId)) {
         return res.status(400).send('Invalid Water Intake ID');
@@ -144,16 +139,13 @@ app.post('/water-intake', async (req, res) => {
         res.status(500).send('Failed to delete water intake');
     }
 });
-  
 
 
 
 
-                    /////////////////// ACTIVITY TRACKER  ///////////////////
 
-
-
-////AKTIVITETS TRACKER
+/////////////////// ACTIVITY TRACKER  ///////////////////
+//Henter aktivitetstyperne. Bruges i acitvityTracker.js
 app.get('/activity-types', async (req, res) => {
     try {
         // Åben en ny forbindelse ved hjælp af SQL Server-konfiguration
@@ -186,7 +178,7 @@ app.post('/add-activity', async (req, res) => {
             .input('ActivityName', sql.NVarChar, name)
             .input('Duration', sql.Int, duration)
             .input('CaloriesBurned', sql.Decimal(18, 0), calories)
-            .input('Date', sql.DateTime, new Date(date)) 
+            .input('Date', sql.DateTime, new Date(date))
             .input('ActivityTypeID', sql.Int, activityTypeID)
             //Aktiviteterne sættes ind i databasen 
             .query('INSERT INTO Activities (UserID, ActivityName, Duration, CaloriesBurned, Date, ActivityTypeID) VALUES (@UserID, @ActivityName, @Duration, @CaloriesBurned, @Date, @ActivityTypeID)');
@@ -201,15 +193,12 @@ app.post('/add-activity', async (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-                             /////////////////// BRUGER STYRING ///////////////////
-
-
-
-// User
+/////////////////// BRUGER STYRING ///////////////////
+//Enpoint til opret bruger. Bliver brugt i login.js
 app.post('/create-user', async (req, res) => {
+    //Henter brugernavn og kodeord fra request body
     const { username, password } = req.body;
-
+    //Validerer brugernavn og kodeord. Skal indeholde @, være min 10 lang og have et stort bogstav
     if (!username.includes('@') || password.length < 10 || !/[A-Z]/.test(password)) {
         return res.status(400).json({
             success: false,
@@ -218,15 +207,20 @@ app.post('/create-user', async (req, res) => {
     }
 
     try {
+        //Opretter forbindelse til databasen
         let pool = await sql.connect(config);
         const userCheck = await pool.request()
+            //Indsætter brugernavnet i SQL forespørgselen
             .input('Username', sql.VarChar, username)
+            //Henter brugeren baseret på brugernavn
             .query('SELECT * FROM Users WHERE Username = @Username');
 
+        //Tjekker om brugeren allerede findes
         if (userCheck.recordset.length > 0) {
             return res.status(409).json({ success: false, message: 'User already exists' });
         }
 
+        //Hasher kodeordet før vi gemmer det
         const hashedPassword = await bcrypt.hash(password, 10);
         await pool.request()
             .input('Username', sql.VarChar, username)
@@ -240,22 +234,28 @@ app.post('/create-user', async (req, res) => {
     }
 });
 
+//Endpoint til login. Bruges i login.js
 app.post('/login', async (req, res) => {
+    //Henter brugernavn og kodeord fra request body
     const { username, password } = req.body;
     try {
+        //Opretter forbindelse til databasen
         let pool = await sql.connect(config);
         const result = await pool.request()
             .input('Username', sql.VarChar, username)
             .query('SELECT * FROM Users WHERE Username = @Username');
 
+        //Tjekker om brugeren findes
         if (result.recordset.length === 0) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
         const user = result.recordset[0];
+        //Sammenligner indtastet kodeord med hashet kodeord i databasen
         const passwordMatch = await bcrypt.compare(password, user.Password);
-        // Gemmer brugeren i session, så vi ved hvilken bruger der er logget ind.
-        // Vi kan hente userID på req.session.user.userId og username på req.session.user.username
+
+        //Gemmer brugeren i session, så vi ved hvilken bruger der er logget ind.
+        //Vi kan hente userID på req.session.user.userId og username på req.session.user.username
         if (passwordMatch) {
             req.session.user = {
                 username,
@@ -271,57 +271,57 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Ændre lige lidt her så den gemmer basalforbrændning
+//Ændrer lige lidt her så den gemmer basalforbrændning
 app.post('/update-user', async (req, res) => {
     if (!req.session.user.username) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
     }
- 
+
     const { weight, age, sex } = req.body;
     const username = req.session.user.username;
-// Funktion til beregning af basalforbrænding indlejret direkte i ruten
-function beregnBasaltStofskifte(weight, age, sex) {
-    let mjBasalstofskifte;
-    if (sex === 'Woman') {
-        if (age < 3) mjBasalstofskifte = 0.244 * weight + 0.13;
-        else if (age <= 10) mjBasalstofskifte = 0.085 * weight + 2.03;
-        else if (age <= 18) mjBasalstofskifte = 0.056 * weight + 2.9;
-        else if (age <= 30) mjBasalstofskifte = 0.0615 * weight + 2.08;
-        else if (age <= 60) mjBasalstofskifte = 0.0364 * weight + 3.47;
-        else if (age <= 75) mjBasalstofskifte = 0.0386 * weight + 2.88;
-        else mjBasalstofskifte = 0.0410 * weight + 2.61;
-    } else if (sex === 'Man') {
-        if (age < 3) mjBasalstofskifte = 0.249 * weight - 0.13;
-        else if (age <= 10) mjBasalstofskifte = 0.095 * weight + 2.11;
-        else if (age <= 18) mjBasalstofskifte = 0.074 * weight + 2.75;
-        else if (age <= 30) mjBasalstofskifte = 0.064 * weight + 2.84;
-        else if (age <= 60) mjBasalstofskifte = 0.0485 * weight + 3.67;
-        else if (age <= 75) mjBasalstofskifte = 0.0499 * weight + 2.93;
-        else mjBasalstofskifte = 0.035 * weight + 3.43;
+    // Funktion til beregning af basalforbrænding indlejret direkte i ruten
+    function beregnBasaltStofskifte(weight, age, sex) {
+        let mjBasalstofskifte;
+        if (sex === 'Woman') {
+            if (age < 3) mjBasalstofskifte = 0.244 * weight + 0.13;
+            else if (age <= 10) mjBasalstofskifte = 0.085 * weight + 2.03;
+            else if (age <= 18) mjBasalstofskifte = 0.056 * weight + 2.9;
+            else if (age <= 30) mjBasalstofskifte = 0.0615 * weight + 2.08;
+            else if (age <= 60) mjBasalstofskifte = 0.0364 * weight + 3.47;
+            else if (age <= 75) mjBasalstofskifte = 0.0386 * weight + 2.88;
+            else mjBasalstofskifte = 0.0410 * weight + 2.61;
+        } else if (sex === 'Man') {
+            if (age < 3) mjBasalstofskifte = 0.249 * weight - 0.13;
+            else if (age <= 10) mjBasalstofskifte = 0.095 * weight + 2.11;
+            else if (age <= 18) mjBasalstofskifte = 0.074 * weight + 2.75;
+            else if (age <= 30) mjBasalstofskifte = 0.064 * weight + 2.84;
+            else if (age <= 60) mjBasalstofskifte = 0.0485 * weight + 3.67;
+            else if (age <= 75) mjBasalstofskifte = 0.0499 * weight + 2.93;
+            else mjBasalstofskifte = 0.035 * weight + 3.43;
+        }
+        // Konvertering til kalorier
+        let kalorier = mjBasalstofskifte * 239;
+        return kalorier.toFixed(2); // Returnerer værdien afrundet til to decimaler
+
     }
-// Konvertering til kalorier
-let kalorier = mjBasalstofskifte * 239;
-return kalorier.toFixed(2); // Returnerer værdien afrundet til to decimaler
-    
-}
- 
-const basalForbrænding = beregnBasaltStofskifte(weight, age, sex);
- 
-try {
-    let pool = await sql.connect(config);
-    const result = await pool.request()
-        .input('Username', sql.VarChar, username)
-        .input('Weight', sql.Decimal, weight)
-        .input('Age', sql.Int, age)
-        .input('Sex', sql.VarChar, sex)
-        .input('Basalforbrændning', sql.Decimal, basalForbrænding)
-        .query('UPDATE Users SET Weight = @Weight, Age = @Age, Sex = @Sex, Basalforbrændning = @Basalforbrændning WHERE Username = @Username');
- 
-    if (result.rowsAffected[0] > 0) {
-        res.json({ success: true, message: 'Profile updated successfully' });
-    } else {
-        res.status(404).json({ success: false, message: 'User not found' });
-    }
+
+    const basalForbrænding = beregnBasaltStofskifte(weight, age, sex);
+
+    try {
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('Username', sql.VarChar, username)
+            .input('Weight', sql.Decimal, weight)
+            .input('Age', sql.Int, age)
+            .input('Sex', sql.VarChar, sex)
+            .input('Basalforbrændning', sql.Decimal, basalForbrænding)
+            .query('UPDATE Users SET Weight = @Weight, Age = @Age, Sex = @Sex, Basalforbrændning = @Basalforbrændning WHERE Username = @Username');
+
+        if (result.rowsAffected[0] > 0) {
+            res.json({ success: true, message: 'Profile updated successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'User not found' });
+        }
     } catch (err) {
         console.error('Update failed:', err);
         res.status(500).json({ success: false, message: 'Update process failed', error: err.message });
@@ -380,22 +380,14 @@ app.get('/get-user-info', async (req, res) => {
 });
 
 
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-                            /////////////////// MEAL CREATOR ///////////////////
-
-
-
-
+/////////////////// MEAL CREATOR ///////////////////
 // muliggør det at brugeren laver et måltid ud fra ingredienser i databasen (route)
 ///////// NUVÆRENDE TEST SOM VIRKER MED AT INDHENTE DATA FRA DATABASEN! ////////////
 
+//Enpoint til at søge efter ingrediens ud fra navnet 
 app.get("/:name", async (req, res) => {
     let name = req.params.name;
     try {
@@ -411,7 +403,6 @@ app.get("/:name", async (req, res) => {
 });
 
 ///////// GØR DET MULIGT AT LAVE ET MÅLTID OG INDSÆTTE DET I DATABASEN ////////////
-
 app.post('/create-meal', async (req, res) => {
     if (!req.session || !req.session.user) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -429,7 +420,7 @@ app.post('/create-meal', async (req, res) => {
 
         const mealId = insertMealResult.recordset[0].MealID;
 
-        // Initialize macro totals
+        //Initialiser makroer
         let totalKCal = 0, totalProtein = 0, totalFat = 0, totalFiber = 0;
 
         for (const ingredient of ingredients) {
@@ -441,7 +432,7 @@ app.post('/create-meal', async (req, res) => {
                 const { FoodID, KCal, Protein, Fat, Fiber } = ingredientResult.recordset[0];
                 const quantity = parseFloat(ingredient.quantity);
 
-                // Calculate macros for the ingredient
+                // Beregner makronæringsstoffer for ingrediensen
                 totalKCal += (KCal * quantity) / 100;
                 totalProtein += (Protein * quantity) / 100;
                 totalFat += (Fat * quantity) / 100;
@@ -455,7 +446,7 @@ app.post('/create-meal', async (req, res) => {
             }
         }
 
-        // Update the Meals table with the total macros
+        //Opdater Meals-tabellen med de totale makronæringsstoffer
         await pool.request()
             .input('MealID', sql.Int, mealId)
             .input('TotalCalories', sql.Decimal, totalKCal)
@@ -482,7 +473,7 @@ app.post('/create-meal', async (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Endpoint to search for ingredient information
+//Endpoint til at søge efter fødevare
 app.get('/search-ingredient-info/:name', async (req, res) => {
     let name = req.params.name;
     try {
@@ -496,8 +487,9 @@ app.get('/search-ingredient-info/:name', async (req, res) => {
         res.status(500).send('Database query error');
     }
 });
- 
-// Endpoint to get detailed information for a specific ingredient by ID
+
+
+//Endpoint for at få detaljerede oplysninger om en specifik ingrediens ved ID
 app.get('/get-ingredient-info/:id', async (req, res) => {
     let id = req.params.id;
     try {
@@ -522,7 +514,7 @@ app.get('/get-ingredient-info/:id', async (req, res) => {
 
 
 
-                                /////////////////// MEAL TRACKER ///////////////////
+/////////////////// MEAL TRACKER ///////////////////
 
 
 
@@ -733,7 +725,7 @@ app.get('/api/logged-meals', async (req, res) => {
 
 
 app.post('/api/log-ingredient', async (req, res) => {
-    const { FoodID, quantity, nameOfIngredient, kalorierGem} = req.body;
+    const { FoodID, quantity, nameOfIngredient, kalorierGem } = req.body;
 
     if (!req.session.user || !req.session.user.userId) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -841,7 +833,7 @@ app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
 
 
 
-                                    /////////////////// DAILY NUTRI  ///////////////////
+/////////////////// DAILY NUTRI  ///////////////////
 
 
 
@@ -875,7 +867,7 @@ app.get('/user/daily-intake', async (req, res) => {
             const result = await pool.request()
                 .input('UserID', sql.Int, req.session.user.userId)
                 .query(query);
-            
+
             res.json({ success: true, data: result.recordset });
         } catch (err) {
             console.error('Failed to retrieve daily intake data:', err);
@@ -920,7 +912,7 @@ ORDER BY CAST(EatenDate AS date)
             const result = await pool.request()
                 .input('UserID', sql.Int, req.session.user.userId)
                 .query(query);
-            
+
             res.json({ success: true, data: result.recordset });
         } catch (err) {
             console.error('Error retrieving monthly intake data:', err);
@@ -962,7 +954,7 @@ app.get('/user/intake-data', async (req, res) => {
             const result = await pool.request()
                 .input('UserID', sql.Int, req.session.user.userId)
                 .query(query);
-            
+
             res.json({ success: true, data: result.recordset });
         } catch (err) {
             console.error('Error retrieving intake data:', err);
@@ -984,7 +976,7 @@ app.get('/user/basalstofskifte', async (req, res) => {
             const result = await pool.request()
                 .input('UserID', sql.Int, req.session.user.userId)
                 .query(query);
-            
+
             res.json({ success: true, data: result.recordset });
         } catch (err) {
             console.error('Failed to retrieve Basalstofskifte data:', err);
