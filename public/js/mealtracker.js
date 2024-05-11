@@ -1,10 +1,14 @@
-// Define seeLoggedMeals at the top level so it's available globally
+//Funktion der viser de loggede måltider
 function seeLoggedMeals() {
+    //Get anmodning for at hente loggede måltider 
     fetch('/api/logged-meals')
+    //Konveterer til jso
     .then(response => response.json())
     .then(meals => {
         const mealContainer = document.getElementById('boxTrackedMeals');
-        mealContainer.innerHTML = ''; // Clear the container before appending new data
+        mealContainer.innerHTML = ''; 
+
+        //Loop gennem hvert måltid og opretter html
         meals.forEach(meal => {
             const mealDiv = document.createElement('div');
             mealDiv.classList.add('loggedMeal');
@@ -18,6 +22,8 @@ function seeLoggedMeals() {
                 <p>Total Fat: ${meal.totalFat} g</p>
                 <p>Total Fiber: ${meal.totalFiber} g</p>
             `;
+
+            //Nye div tilføjes 
             mealContainer.appendChild(mealDiv);
         });
     })
@@ -26,9 +32,7 @@ function seeLoggedMeals() {
     });
 }
 
-
-
-// When DOM is fully loaded, fetch meals
+//Kalder funktionen når siden læseses
 document.addEventListener("DOMContentLoaded", function () {
     seeLoggedMeals();
 });

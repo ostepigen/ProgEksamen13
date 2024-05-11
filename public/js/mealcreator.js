@@ -6,14 +6,18 @@ let mealData = {
 
 //Funktion til at søge efter ingredienser 
 function searchIngredients() {
+    //Henter værdien af søgefeltet, altså det søgte ord
     let searchTerm = document.getElementById('searchTerm').value;
     //Forespørgsel til serveren med søgeordet
     fetch(`/${searchTerm}`)
+    //Konverter svaret til json
         .then(response => response.json())
         .then(data => {
+            //Dropdown menu
             let select = document.getElementById('searchResults');
             //Tømmer det man søgte før
             select.innerHTML = '';
+            //Loop gennem hvert resultat og tilføjer til dropdown
             data.forEach(food => {
                 let option = document.createElement('option');
                 option.textContent = food.FoodName;
@@ -28,21 +32,25 @@ function searchIngredients() {
 
 //Funktion til at tilføje en ingrediens til det måltid brugeren er i gang med at oprette
 function submitIngredient() {
+    //Henter den valgte ingrediens fra dropwon
     let selectedIngredient = document.getElementById('searchResults').value;
+    //Mængden
     let quantity = document.getElementById('quantity').value;
+    //Tilføjer ingrediensen med navn og mængde til måltidet
     mealData.ingredients.push({ name: selectedIngredient, quantity: quantity });
     updateAddedIngredientsDisplay();
 }
 
 //Opdaterer visningen af de tilføjede ingredienser
 function updateAddedIngredientsDisplay() {
+    //Container til de tilføjede ingredienser
     let container = document.getElementById('addedIngredients');
     container.innerHTML = '<h3>Added Ingredients:</h3>';
     mealData.ingredients.forEach((ing, index) => {
         let div = document.createElement('div');
         div.textContent = `${ing.quantity} grams of ${ing.name}`;
 
-        //Tilføj en Remove-knap for hver ingrediens, så man kan fjerne den hvis det var en fejl
+        //Tilføjer en Remove-knap for hver ingrediens, så man kan fjerne den hvis det var en fejl
         let removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
         //Kalder funktionen der fjerner ingrediensen 
@@ -141,7 +149,7 @@ function addMealToDisplay(mealName, ingredients) {
     });
     mealBox.appendChild(ul);
 
-    //Tilføjer måltidet til boksen
+    //Tilføjer måltiderne til boksen
     container.appendChild(mealBox);
 }
 

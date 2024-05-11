@@ -5,14 +5,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchResults = document.getElementById('searchResults');
     const quantityInput = document.getElementById('quantity');
 
+    //Event listener til søgeknappen for at aktivere ingredienssøgning
     searchButton.addEventListener('click', function () {
         searchIngredients();
     });
 
+    //Event listener på log-knappen for at aktivere logning af ingrediens
     logButton.addEventListener('click', function () {
         logIngredient();
     });
 
+    //Funktion hvor man kan søge 
     function searchIngredients() {
         const ingredientName = ingredientInput.value.trim();
         if (!ingredientName) {
@@ -20,18 +23,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        //Henter fra serveren
         fetch(`/search-ingredient-info/${ingredientName}`)
             .then(response => response.json())
             .then(data => {
                 searchResults.innerHTML = '';
                 if (data.length > 0) {
+                    //Loop igennem hver match, så det kan vises i dropdown
                     data.forEach(item => {
                         let option = document.createElement('option');
                         option.value = item.FoodID;
                         option.textContent = item.FoodName;
                         kalorierData = item.Kcal;
                         searchResults.appendChild(option);
-                    
+
                     });
                     searchResults.disabled = false;
                 } else {
@@ -45,11 +50,12 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    //Funktion til at logge en ingrediens med den indtastede vægt
     function logIngredient() {
         const foodID = searchResults.value;
         const weight = quantityInput.value;
         const ingredientName = searchResults.options[searchResults.selectedIndex].text;
-        //Stine har ændret
+        //??
         const kalorier = kalorierData
 
 
@@ -62,10 +68,13 @@ document.addEventListener("DOMContentLoaded", function () {
             FoodID: parseInt(foodID, 10),
             quantity: parseInt(weight, 10),
             nameOfIngredient: ingredientName,
-            //Ændrer her
+            //Ændrer her??
             kalorierGem: (kalorier * weight) / 100
         };
-console.log(postData)
+        console.log(postData)
+
+
+        //Sender POST anmodning til serveren for at logge ingrediensen
         fetch('/api/log-ingredient', {
             method: 'POST',
             headers: {
@@ -73,33 +82,37 @@ console.log(postData)
             },
             body: JSON.stringify(postData)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('Ingredient logged successfully.');
-                addIngredientToList(result.ingredientId, ingredientName, weight, kalorier);  // Ensure 'result.ingredientId' is correct
-            } else {
-                throw new Error(result.message);
-            }
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Ingredient logged successfully.');
+                    addIngredientToList(result.ingredientId, ingredientName, weight, kalorier);
+                } else {
+                    throw new Error(result.message);
+                }
+            });
     }
 
+
+    //Ingrediens vises
     function addIngredientToList(ingredientId, ingredientName, weight) {
         const ingredientsList = document.getElementById('ingredientsList');
         const newIngredient = document.createElement('li');
         newIngredient.textContent = `${ingredientName} - ${weight} grams `;
-        newIngredient.dataset.ingredientId = ingredientId;  // Ensure this attribute is correctly set
+        newIngredient.dataset.ingredientId = ingredientId;
 
+        //SLet knap
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
-        deleteButton.onclick = function() { deleteIngredient(ingredientId); };
+        deleteButton.onclick = function () { deleteIngredient(ingredientId); };
 
         newIngredient.appendChild(deleteButton);
         ingredientsList.appendChild(newIngredient);
     }
 
+    //Funktion til at slette den gemte ingrediens
     function deleteIngredient(ingredientId) {
-        console.log("Deleting Ingredient with ID:", ingredientId);  // Log to ensure the ID is correct
+        console.log("Deleting Ingredient with ID:", ingredientId);
         fetch(`/api/delete-ingredient/${ingredientId}`, { method: 'DELETE' })
             .then(response => response.json())
             .then(result => {
@@ -136,22 +149,22 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    //Funktion til at få vist gamle loggede ingredienser
     function displayIngredients(ingredients) {
-        ingredientsListAlreadyAdded.innerHTML = ''; // Clear the list first
+        ingredientsListAlreadyAdded.innerHTML = '';
         ingredients.forEach(ingredient => {
             const ingredientItem = document.createElement('li');
             ingredientItem.textContent = `${ingredient.NameOfIngredient} - ${ingredient.Quantity} grams logged on ${new Date(ingredient.LoggedDate).toLocaleString()}`;
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
-            deleteButton.onclick = function() { deleteIngredient(ingredient.IngredientID); };
-            deleteButton.classList.add('delete-button'); // Add class for optional styling
-
+            deleteButton.onclick = function () { deleteIngredient(ingredient.IngredientID); };
+            deleteButton.classList.add('delete-button');
             ingredientItem.appendChild(deleteButton);
             ingredientsListAlreadyAdded.appendChild(ingredientItem);
         });
     }
-
+    //Funktion til at slette gamle loggede ingredienser
     function deleteIngredient(ingredientId) {
         fetch(`/api/delete-ingredient/${ingredientId}`, { method: 'DELETE' })
             .then(response => response.json())

@@ -512,14 +512,8 @@ app.get('/get-ingredient-info/:id', async (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /////////////////// MEAL TRACKER ///////////////////
-
-
-
-
-// Endpoint to delete a logged meal
+// Endpoint til at slette et måltid
 app.delete('/api/delete-meal-eaten/:mealEatenId', async (req, res) => {
     if (!req.session || !req.session.user || !req.session.user.userId) {
         console.log("Session or user ID not found in session:", req.session);
@@ -554,7 +548,7 @@ app.delete('/api/delete-meal-eaten/:mealEatenId', async (req, res) => {
 
 
 
-// Endpoint to fetch meals for dropdown for the logged-in user
+//Endpoint til fetch af brugerens måltider
 app.get('/api/meals', async (req, res) => {
     if (!req.session || !req.session.user) {
         return res.status(401).send('User not logged in');
@@ -580,7 +574,7 @@ app.get('/api/meals', async (req, res) => {
 
 
 ////////// EDIT MEALS /////////
-
+//Bruges i mealLogger.js
 app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).send('User not logged in');
@@ -595,7 +589,7 @@ app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
 
     try {
         const pool = await sql.connect(config);
-        // Retrieve the current meal details
+
         const mealDetails = await pool.request()
             .input('MealEatenId', sql.Int, mealEatenId)
             .query('SELECT TotalCalories, TotalProtein, TotalFat, TotalFiber, Weight FROM MealsEaten WHERE MealEatenId = @MealEatenId');
@@ -607,13 +601,13 @@ app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
         const meal = mealDetails.recordset[0];
         const factor = newWeight / meal.Weight;
 
-        // Recalculate macros based on the new weight
+        //Regner makroer 
         const newCalories = meal.TotalCalories * factor;
         const newProtein = meal.TotalProtein * factor;
         const newFat = meal.TotalFat * factor;
         const newFiber = meal.TotalFiber * factor;
 
-        // Update meal with new weight and new macros
+        //Opdaterer vægt og maskroer
         await pool.request()
             .input('MealEatenId', sql.Int, mealEatenId)
             .input('NewWeight', sql.Decimal(10, 2), newWeight)
@@ -634,10 +628,9 @@ app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
 
 
 ///////// MEAL TRACKER //////////
-
-// Endpoint to log a meal
+// Endpoint til at logge et måltid
 app.post('/api/log-meal', async (req, res) => {
-    const { mealId, weight, location } = req.body; // Now including location in the data received
+    const { mealId, weight, location } = req.body;
 
     try {
         const pool = await sql.connect(config);
@@ -680,7 +673,7 @@ app.post('/api/log-meal', async (req, res) => {
     }
 });
 
-
+//Endpoint til at hente loggede måltider
 app.get('/api/logged-meals', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).send('User not logged in');
@@ -720,10 +713,7 @@ app.get('/api/logged-meals', async (req, res) => {
 
 
 
-
-
-
-
+//Endpoint til at gemme en ingreint 
 app.post('/api/log-ingredient', async (req, res) => {
     const { FoodID, quantity, nameOfIngredient, kalorierGem } = req.body;
 
@@ -758,7 +748,7 @@ app.post('/api/log-ingredient', async (req, res) => {
 
 
 
-// Endpoint to retrieve logged ingredients for the logged-in user
+//Endpoint til at hente de gemte ingredienser 
 app.get('/api/logged-ingredients', async (req, res) => {
     if (!req.session.user || !req.session.user.userId) {
         return res.status(401).send('User not logged in');
@@ -783,6 +773,7 @@ app.get('/api/logged-ingredients', async (req, res) => {
     }
 });
 
+//Endpoint til at slette de gemte ingredienser
 app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
     const { ingredientId } = req.params;
 
@@ -819,26 +810,10 @@ app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 /////////////////// DAILY NUTRI  ///////////////////
 
-
-
-// og forbrændre kalorier fra activities 
-// DAILY NUTRI
+//og forbrændre kalorier fra activities 
+//Dagsview
 app.get('/user/daily-intake', async (req, res) => {
     if (req.session.user && req.session.user.userId) {
         try {
@@ -879,7 +854,7 @@ app.get('/user/daily-intake', async (req, res) => {
 });
 
 
-/// MONTHLY NUTRI
+/// Månedsview
 app.get('/user/monthly-intake', async (req, res) => {
     if (req.session.user && req.session.user.userId) {
         try {
@@ -924,7 +899,6 @@ ORDER BY CAST(EatenDate AS date)
 });
 
 /// SELECT 30 DAYS OR 24 HOURS
-
 app.get('/user/intake-data', async (req, res) => {
     const { timeframe } = req.query;
     let query = '';
@@ -967,7 +941,7 @@ app.get('/user/intake-data', async (req, res) => {
 
 
 
-// Get basalstofskifte
+//Brugerens basalstofskifte
 app.get('/user/basalstofskifte', async (req, res) => {
     if (req.session.user && req.session.user.userId) {
         try {
@@ -989,14 +963,8 @@ app.get('/user/basalstofskifte', async (req, res) => {
 
 
 
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// Hav den her i bunden 
+//Hav den her i bunden 
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

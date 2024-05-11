@@ -67,7 +67,7 @@ body {
     margin: 20px auto;
     padding: 20px;
     border-radius: 10px;
-    width: 50%; /* Adjust the width as needed */
+    width: 50%; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -77,7 +77,7 @@ body {
 
 #mealLoggerContainer select, 
 #mealLoggerContainer input {
-    width: calc(100% - 20px); /* Adjust width to account for padding */
+    width: calc(100% - 20px); 
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;

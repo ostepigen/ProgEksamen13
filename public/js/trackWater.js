@@ -3,9 +3,9 @@ const apiUrl = '/water-intake';
 function getUserLiquids() {
     console.log('Making fetch call to the server');
     fetch(`/water-intaken`)
-    //Konveterer json
-    .then(response => response.json())
-    //Det konveretede objekt bruges til at opdatere brugerens side, så de kan få vist 
+        //Konveterer json
+        .then(response => response.json())
+        //Det konveretede objekt bruges til at opdatere brugerens side, så de kan få vist 
         .then(data => {
             console.log('Data hentet fra serveren:', data);
 
@@ -26,7 +26,7 @@ function getUserLiquids() {
             console.error('Error fetching user liquids:', error);
             alert('Failed to fetch liquids for the specified user.');
         });
-    }
+}
 
 
 //Funktion der sletter 
@@ -34,21 +34,21 @@ function removeLiquid(element, waterIntakeId) {
     fetch(`/water-intake/${waterIntakeId}`, {
         method: 'DELETE'
     })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            alert('Liquid deleted successfully');
-            //Fjerner elementet fra siden
-            element.parentNode.removeChild(element); 
-            console.log(`nr ${waterIntakeId} er lige blevet slettet`);
-        } else {
-            throw new Error(result.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error deleting water intake:', error);
-        alert('Failed to delete water intake. Please try again.');
-    });
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Liquid deleted successfully');
+                //Fjerner elementet fra siden
+                element.parentNode.removeChild(element);
+                console.log(`nr ${waterIntakeId} er lige blevet slettet`);
+            } else {
+                throw new Error(result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting water intake:', error);
+            alert('Failed to delete water intake. Please try again.');
+        });
 }
 
 
@@ -90,11 +90,11 @@ function addLiquid() {
 }
 
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     getUserLiquids();
 });
 
-// Go back to mealtracker.html
+//Gå tilbage
 function goBack() {
     window.location.href = "mealtracker.html";
 }
