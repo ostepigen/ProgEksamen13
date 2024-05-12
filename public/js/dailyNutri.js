@@ -145,7 +145,7 @@ function updateDailyIntakeTable(hoursData, viewType) {
         row.appendChild(liquidCell);
 
 
-        // HER
+        // 24 TIMERS VISNING
         if (viewType === '24hours') {
 
             //Forbrændte kalorier

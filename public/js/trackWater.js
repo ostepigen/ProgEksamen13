@@ -1,5 +1,6 @@
 const apiUrl = '/water-intake';
 
+// Funktion til at hente og vise brugerens væskeindtag
 function getUserLiquids() {
     console.log('Making fetch call to the server');
     fetch(`/water-intaken`)
@@ -9,7 +10,7 @@ function getUserLiquids() {
         .then(data => {
             console.log('Data hentet fra serveren:', data);
 
-            data.forEach(water => {
+            data.forEach(water => { // Behandler hvert væskeindtag
                 const waterContainer = document.getElementById('liquidList');
                 const waterDiv = document.createElement('div');
                 waterDiv.classList.add('loggedWater');
@@ -29,7 +30,7 @@ function getUserLiquids() {
 }
 
 
-//Funktion der sletter 
+// Funktion til at slette et specifikt væskeindtag
 function removeLiquid(element, waterIntakeId) {
     fetch(`/water-intake/${waterIntakeId}`, {
         method: 'DELETE'
@@ -51,12 +52,12 @@ function removeLiquid(element, waterIntakeId) {
         });
 }
 
-
+// Funktion til at tilføje nyt væskeindtag
 function addLiquid() {
-    const liquidName = document.getElementById('liquidName').value;
-    const amount = document.getElementById('amount').value;
+    const liquidName = document.getElementById('liquidName').value; // Indsamler navnet på væsken
+    const amount = document.getElementById('amount').value; // Indsamler mængden af væsken
 
-    if (!liquidName || !amount) {
+    if (!liquidName || !amount) { // Validerer input
         alert('Please enter both the name of the liquid and the amount.');
         return;
     }
@@ -89,7 +90,7 @@ function addLiquid() {
         });
 }
 
-document.addEventListener("DOMContentLoaded", getUserLiquids);
+document.addEventListener("DOMContentLoaded", getUserLiquids); // Kalder funktionen
 
 //Gå tilbage
 function goBack() {

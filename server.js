@@ -1,31 +1,22 @@
+require('dotenv').config({ path: './.env.development' });
 const express = require('express');
 const sql = require('mssql');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
+const config = require('./config');
 
 const app = express();
 
-const config = {
-    user: 'Supergodgruppe13',
-    password: 'Dengodekode13',
-    server: 'eksamendb13.database.windows.net',
-    database: 'eksamensprojekt',
-    options: {
-        encrypt: true,
-        enableArithAbort: true
-    }
-};
-
-// Middleware
-app.use(express.static('public')); // Serve static files
-app.use(bodyParser.json()); // Parse JSON bodies
+// Middleware 
+app.use(express.static('public')); // Behandler statiske filer fra public mappen
+app.use(bodyParser.json()); // Anvender body-parser til at parse JSON i request body
 app.use(session({
     secret: 'Jegelskermitarbejde1',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // use true if you are on HTTPS
+    cookie: { secure: false } 
 }));
 
 // Routes
@@ -33,28 +24,29 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
 });
 
-// Function to ensure the user is logged in
+// Funktion til at sikre, at brugeren er logget ind
 function checkLogin(req, res, next) {
     if (!req.session.user) {
-        res.redirect('/'); // Redirect to login if not logged in
+        res.redirect('/');// Omdirigerer til login, hvis ikke logget ind
     } else {
-        next(); // Continue if logged in
+        next(); 
     }
 }
 
-// Define routes to serve HTML pages that require login
+// Definerer ruter for at tilgå HTML-sider, der kræver login
 const pages = [
     'mealcreator.html', 'mealtracker.html', 'dailynutri.html',
     'activityTracker.html', 'profile.html'
 ];
 
+// Loop igennem hver side i arrayet og tilføj en rute
 pages.forEach(page => {
     app.get(`/${page}`, checkLogin, (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'html', page));
     });
 });
 
-// Logout route that destroys the session
+// Rute til at logge ud og afslutte sessionen
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
@@ -67,80 +59,83 @@ app.get('/logout', (req, res) => {
 });
 
 
-
+//////////// EKSTRA FUNKTIONER TIL MEALTRACKEREN //////////////
+// Route til at registrere væskeindtag
 app.post('/water-intake', async (req, res) => {
-    console.log('User session:', req.session.user);
 
+    // Tjekker om brugeren er logget ind
     if (!req.session.user || !req.session.user.username) {
         return res.status(401).send('Not logged in');
     }
 
+    console.log('User ID:', req.session.user.userId);  // Logger brugerens ID
 
-    console.log('User ID:', req.session.user.userId);
-
+    // Henter væskenavn og mængde fra anmodningens body
     const { liquidName, amount } = req.body;
     try {
-        const pool = await sql.connect(config);
+        const pool = await sql.connect(config);  // Forbinder til databasen
+        // Udfører SQL-anmodning for at tilføje data
         await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .input('LiquidName', sql.NVarChar, liquidName)
             .input('Amount', sql.Int, amount)
             .query('INSERT INTO WaterIntake (UserID, LiquidName, Amount) VALUES (@UserID, @LiquidName, @Amount)');
 
+        // Svarer med succesmeddelelse
         res.status(200).json({ success: true, message: 'Water intake recorded successfully' });
     } catch (err) {
-        console.error('Database operation failed:', err);
+        console.error('Database operation failed:', err);  // Logger databasens fejl
         res.status(500).json({ success: false, message: 'Failed to record water intake', error: err.message });
     }
 });
 
-
+// Route til at hente alle brugerens væskeindtagsposter
 app.get('/water-intaken', async (req, res) => {
-
     if (!req.session.user.userId) {
         return res.status(401).send('Not logged in');
     }
-    console.log('User ID:', req.session.user.userId);
+    console.log('User ID:', req.session.user.userId);  // Logger brugerens ID
     try {
-        const pool = await sql.connect(config);
+        const pool = await sql.connect(config);  // Forbinder til databasen
         const result = await pool.request()
             .input('UserID', sql.Int, req.session.user.userId)
             .query('SELECT LiquidName, Amount, IntakeDateTime, WaterIntakeId FROM WaterIntake WHERE UserID = @UserID ORDER BY IntakeDateTime DESC');
 
-
+        // Sender data som JSON
         res.status(200).json(result.recordset);
 
     } catch (err) {
-        console.error('Database operation failed:', err);
+        console.error('Database operation failed:', err); 
         res.status(500).send('Failed to get water intake records');
     }
 });
 
-// Endpoint to delete a water intake record
+// Route til at slette et væskeindtagspost
 app.delete('/water-intake/:waterIntakeId', async (req, res) => {
-    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);
+    const waterIntakeId = parseInt(req.params.waterIntakeId, 10);  // Parser ID fra URL
     if (isNaN(waterIntakeId)) {
         return res.status(400).send('Invalid Water Intake ID');
     }
 
     try {
-        const pool = await sql.connect(config);
+        const pool = await sql.connect(config);  // Forbinder til databasen
         const result = await pool.request()
             .input('WaterIntakeId', sql.Int, waterIntakeId)
             .query('DELETE FROM WaterIntake WHERE WaterIntakeId = @WaterIntakeId');
 
         if (result.rowsAffected[0] > 0) {
-            res.json({ success: true, message: 'Water intake deleted successfully' });
+            res.json({ success: true, message: 'Water intake deleted successfully' });  
         } else {
-            res.status(404).send('Water intake record not found');
+            res.status(404).send('Water intake record not found');  
         }
     } catch (err) {
-        console.error('Database operation failed:', err);
+        console.error('Database operation failed:', err); 
         res.status(500).send('Failed to delete water intake');
     }
 });
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -162,7 +157,7 @@ app.get('/activity-types', async (req, res) => {
     }
 });
 
-// Vigtigt at det her er req.session.user.userID
+// Tilføjer aktivitet til brugeren
 app.post('/add-activity', async (req, res) => {
     if (!req.session || !req.session.user.userId) {
         return res.status(401).send('User not logged in');
@@ -271,7 +266,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-//Ændrer lige lidt her så den gemmer basalforbrændning
+// Endpoint til at opdaterer brugeroplysninger
 app.post('/update-user', async (req, res) => {
     if (!req.session.user.username) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -328,6 +323,7 @@ app.post('/update-user', async (req, res) => {
     }
 });
 
+// Route til at slette en brugers profil
 app.post('/delete-user', async (req, res) => {
     if (!req.session.user.username) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -342,7 +338,7 @@ app.post('/delete-user', async (req, res) => {
             .query('DELETE FROM Users WHERE Username = @Username');
 
         if (result.rowsAffected[0] > 0) {
-            req.session.destroy(); // Destroying the session after deleting the user
+            req.session.destroy(); // Afslutter sessionen efter brugeren er slettet
             res.json({ success: true, message: 'User deleted successfully' });
         } else {
             res.status(404).json({ success: false, message: 'User not found' });
@@ -353,7 +349,7 @@ app.post('/delete-user', async (req, res) => {
     }
 });
 
-// Get User Profile Information – Weight, Age, Sex Til at blive vist på når man er logget ind
+// Route til at hente brugerprofiloplysninger – Weight, Age, Sex Til at blive vist på når man er logget ind
 app.get('/get-user-info', async (req, res) => {
     if (!req.session || !req.session.user.username) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -384,9 +380,6 @@ app.get('/get-user-info', async (req, res) => {
 
 
 /////////////////// MEAL CREATOR ///////////////////
-// muliggør det at brugeren laver et måltid ud fra ingredienser i databasen (route)
-///////// NUVÆRENDE TEST SOM VIRKER MED AT INDHENTE DATA FRA DATABASEN! ////////////
-
 //Enpoint til at søge efter ingrediens ud fra navnet 
 app.get("/:name", async (req, res) => {
     let name = req.params.name;
@@ -402,7 +395,7 @@ app.get("/:name", async (req, res) => {
     }
 });
 
-///////// GØR DET MULIGT AT LAVE ET MÅLTID OG INDSÆTTE DET I DATABASEN ////////////
+// muliggør det at brugeren laver et måltid ud fra ingredienser i databasen
 app.post('/create-meal', async (req, res) => {
     if (!req.session || !req.session.user) {
         return res.status(401).json({ success: false, message: 'No user logged in' });
@@ -471,8 +464,6 @@ app.post('/create-meal', async (req, res) => {
     }
 });
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
 //Endpoint til at søge efter fødevare
 app.get('/search-ingredient-info/:name', async (req, res) => {
     let name = req.params.name;
@@ -503,12 +494,6 @@ app.get('/get-ingredient-info/:id', async (req, res) => {
         res.status(500).send('Database query error');
     }
 });
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -544,10 +529,6 @@ app.delete('/api/delete-meal-eaten/:mealEatenId', async (req, res) => {
     }
 });
 
-
-
-
-
 //Endpoint til fetch af brugerens måltider
 app.get('/api/meals', async (req, res) => {
     if (!req.session || !req.session.user) {
@@ -571,7 +552,6 @@ app.get('/api/meals', async (req, res) => {
         res.status(500).send('Error retrieving meals from database');
     }
 });
-
 
 ////////// EDIT MEALS /////////
 //Bruges i mealLogger.js
@@ -624,10 +604,6 @@ app.patch('/api/update-meal-eaten/:mealEatenId', async (req, res) => {
     }
 });
 
-
-
-
-///////// MEAL TRACKER //////////
 // Endpoint til at logge et måltid
 app.post('/api/log-meal', async (req, res) => {
     const { mealId, weight, location } = req.body;
@@ -655,7 +631,7 @@ app.post('/api/log-meal', async (req, res) => {
             .input('UserID', sql.Int, req.session.user.userId)
             .input('EatenDate', sql.DateTime, new Date())
             .input('Weight', sql.Int, weight)
-            .input('Location', sql.VarChar(255), location) // Storing location
+            .input('Location', sql.VarChar(255), location)
             .input('TotalCalories', sql.Decimal(10, 2), calories)
             .input('TotalProtein', sql.Decimal(10, 2), protein)
             .input('TotalFat', sql.Decimal(10, 2), fat)
@@ -713,7 +689,7 @@ app.get('/api/logged-meals', async (req, res) => {
 
 
 
-//Endpoint til at gemme en ingreint 
+//Endpoint til at gemme en ingrediens 
 app.post('/api/log-ingredient', async (req, res) => {
     const { FoodID, quantity, nameOfIngredient, kalorierGem } = req.body;
 
@@ -745,8 +721,6 @@ app.post('/api/log-ingredient', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error logging ingredient', error: err.toString() });
     }
 });
-
-
 
 //Endpoint til at hente de gemte ingredienser 
 app.get('/api/logged-ingredients', async (req, res) => {
@@ -805,14 +779,9 @@ app.delete('/api/delete-ingredient/:ingredientId', async (req, res) => {
     }
 });
 
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////// DAILY NUTRI  ///////////////////
 
-//og forbrændre kalorier fra activities 
 //Dagsview
 app.get('/user/daily-intake', async (req, res) => {
     if (req.session.user && req.session.user.userId) {
@@ -852,7 +821,6 @@ app.get('/user/daily-intake', async (req, res) => {
         res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 });
-
 
 /// Månedsview
 app.get('/user/monthly-intake', async (req, res) => {
@@ -898,7 +866,7 @@ ORDER BY CAST(EatenDate AS date)
     }
 });
 
-/// SELECT 30 DAYS OR 24 HOURS
+/// Vælg 30 dage eller 24 timer
 app.get('/user/intake-data', async (req, res) => {
     const { timeframe } = req.query;
     let query = '';
@@ -939,9 +907,7 @@ app.get('/user/intake-data', async (req, res) => {
     }
 });
 
-
-
-//Brugerens basalstofskifte
+//Indhenter brugerens basalstofskifte
 app.get('/user/basalstofskifte', async (req, res) => {
     if (req.session.user && req.session.user.userId) {
         try {
@@ -961,10 +927,8 @@ app.get('/user/basalstofskifte', async (req, res) => {
     }
 });
 
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Hav den her i bunden 
+
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

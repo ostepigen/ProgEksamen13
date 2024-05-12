@@ -1,58 +1,60 @@
-//Eventlistner til login
+// Eventlistener til 'submit' hændelsen på loginformularen
 document.getElementById('loginForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    //Henter brugernavn og kodeord fra input felterne
+    event.preventDefault();  // Stopper standardformularafsending for at håndtere det via JavaScript
+
+    // Henter brugernavn og kodeord fra de tilsvarende inputfelter i formularen
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
 
-    //POST-anmodning til serverens login endpoint
+    // Sender en POST-anmodning til serveren for at logge ind
     fetch('/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json',  // Fortæller serveren at dataene er i JSON-format
         },
-        //Bruger og kodeord navnet bliver sendt til serveren
-        body: JSON.stringify({ username: username, password: password })
+        body: JSON.stringify({ username: username, password: password })  // Konverterer brugernavn og kodeord til en streng i JSON-format
     })
-        .then(response => response.json())
+        .then(response => response.json())  // Konverterer svaret fra serveren til JSON
         .then(data => {
             if (data.success) {
-                //Sender brugeren til profilsiden 
+                // Hvis login er succesfuldt, omdiriger brugeren til profilsiden
                 window.location.href = 'profile.html';
             } else {
+                // Hvis der opstår en fejl ved login, vis en fejlmeddelelse
                 alert('An error occured when logging in: ' + data.message);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error));  // Logger eventuelle fejl i konsollen
 });
 
-
-//// OPRET BRUGER DER VIRKER /////
+// Eventlistener til 'submit' hændelsen på opret bruger-formularen
 document.getElementById('userForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    //Henter brugernavn og kodeord fra input felterne
+    event.preventDefault();  // Stopper standardformularafsending
+
+    // Henter brugernavn og kodeord fra de tilsvarende inputfelter
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    //POST-anmodning til serverens create-user endpoint
+    // Sender en POST-anmodning til serveren for at oprette en ny bruger
     fetch('/create-user', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json',  // Angiver at data er i JSON-format
         },
-        body: JSON.stringify({ username: username, password: password })
+        body: JSON.stringify({ username: username, password: password })  // Sender brugernavn og kodeord som JSON
     })
-        .then(response => response.json())
+        .then(response => response.json())  // Konverterer serverens svar til JSON
         .then(data => {
             if (data.success) {
-                //Viser succesmeddelelse
+                // Viser en besked om at brugeren er oprettet og beder om at logge ind
                 alert('User created! Please log in.');
-                //Nustiller felterne
+                // Nulstiller inputfelterne
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
             } else {
+                // Viser en fejlmeddelelse hvis der er problemer med brugeroprettelsen
                 alert('Error: ' + data.message);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error));  // Logger eventuelle fejl i konsollen
 });

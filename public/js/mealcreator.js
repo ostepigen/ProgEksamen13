@@ -173,18 +173,16 @@ function searchForInformation() {
         });
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Function to get information of the selected ingredient from the dropdown
+// Funktion til at få information om den valgte ingrediens fra dropdown
 function getIngredientInformation() {
     let selectedFoodID = document.getElementById('infoSearchResults').value;
     fetch(`/get-ingredient-info/${selectedFoodID}`)
         .then(response => response.json())
         .then(data => {
             let container = document.getElementById('ingredientInformation');
-            container.innerHTML = ''; // Clear previous information
+            container.innerHTML = ''; // Tømmer containeren først
             if (data && data.length > 0) {
-                const info = data[0]; // Assuming the first record is what we want
+                const info = data[0]; // Bruger kun det første resultat
                 container.innerHTML = `
                 <p><strong>Name:</strong> ${info.FoodName}</p>
                 <p><strong>Food ID:</strong> ${info.FoodID}</p>
