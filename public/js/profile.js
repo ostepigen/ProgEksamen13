@@ -90,18 +90,19 @@ document.getElementById('deleteForm').addEventListener('submit', function (event
             headers: {
                 'Content-Type': 'application/json',
             }
-
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Profile has been deleted!');
-                    //Bliver sendt til loginsiden når den er slettet
-                    window.location.href = '/login.html';
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Profile has been deleted!');
+                window.location.href = '/profile.html'; // Ensure correct redirection
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error: Could not delete profile');
+        });
     }
 });

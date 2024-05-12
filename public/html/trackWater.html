@@ -16,13 +16,13 @@
             <div id="mealCreatorHeader">
                 <div id="mealCreatorHeading">
                     Liquid Intake
+                    <div id="inputs">
+                        <input type="text" id="liquidName" placeholder="Liquid Name">
+                        <input type="number" id="amount" placeholder="Amount (ml)">
+                        <button onclick="addLiquid()">Add Liquid</button>
+                    </div>
                 </div>
                 <button class="goBackButton" onclick="window.history.back()">Go Back</button>
-                <div id="inputs">
-                    <input type="text" id="liquidName" placeholder="Liquid Name">
-                    <input type="number" id="amount" placeholder="Amount (ml)">
-                    <button onclick="addLiquid()">Add Liquid</button>
-                </div>
                 <div id="liquidList" class="liquid-list"></div>
             </div>
         </div>

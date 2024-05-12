@@ -73,8 +73,7 @@ body {
     width: 100%;
     flex-direction: column;
     padding: 20px;
-    height: auto;
-    overflow-y: auto;  /* Allows scrolling within this container */
+    height: 200px;
 }
 
 
@@ -98,7 +97,7 @@ body {
 
 #inputs {
     position: absolute;
-    top: 40%;
+    top: 20%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center; 
@@ -127,7 +126,7 @@ body {
 
 #liquidList {
     position: absolute;
-    top: 500px; 
+    top: 350px; 
     left: 50%;
     transform: translateX(-50%);
     list-style-type: none;
