@@ -89,10 +89,7 @@ function addLiquid() {
         });
 }
 
-
-document.addEventListener("DOMContentLoaded", function () {
-    getUserLiquids();
-});
+document.addEventListener("DOMContentLoaded", getUserLiquids);
 
 //Gå tilbage
 function goBack() {

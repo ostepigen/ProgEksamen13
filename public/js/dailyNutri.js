@@ -163,7 +163,7 @@ function updateDailyIntakeTable(hoursData, viewType) {
             //Underskud / overskud
             const balanceCell = document.createElement('div');
             balanceCell.className = 'cell';
-            balanceCell.textContent = `${runningBalance.toFixed(2)} kcal ${runningBalance < 0 ? '(Underskud)' : '(Overskud)'}`;
+            balanceCell.textContent = `${runningBalance.toFixed(2)} kcal ${runningBalance < 0 ? '(Deficit)' : '(Surplus)'}`;
 
             row.appendChild(balanceCell);
         } else {
@@ -181,7 +181,7 @@ function updateDailyIntakeTable(hoursData, viewType) {
             //Underskud / overskud
             const balanceCell = document.createElement('div');
             balanceCell.className = 'cell';
-            balanceCell.textContent = `${runningBalance.toFixed(2)} kcal ${runningBalance < 0 ? '(Underskud)' : '(Overskud)'}`;
+            balanceCell.textContent = `${runningBalance.toFixed(2)} kcal ${runningBalance < 0 ? '(Deficit)' : '(Surplus)'}`;
             console.log(runningBalance)
             row.appendChild(balanceCell);
 
